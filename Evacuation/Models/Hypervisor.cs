@@ -18,6 +18,7 @@ namespace Evacuation
 
         public readonly List<VirtualMachine> Vms = new List<VirtualMachine>();
         public string HostName { get; set; } = "";
+        public string Uuid { get; set; } = "";
         public string XenVersion { get; set; } = "";
         public long Cores { get; set; }
         public long CoresAllocated { get; set; }
@@ -33,7 +34,7 @@ namespace Evacuation
         public string VolumeTypes { get; set; } = "";
         public int CurMovesToMe = 0;
 		public long PatchCount { get; set; } = 0;
-        public List<Host_patch> Patches;
+        public List<Pool_patch> Patches;
 
 		public long CoresRemaining => Cores - CoresAllocated;
         public string CpuVersion {
@@ -135,14 +136,12 @@ namespace Evacuation
         private void Clear()
         {
             Vms.Clear();
-            XenVersion = "";
             Cores = 0;
             CoresAllocated = 0;
             Memory = 0;
             MemoryAllocated = 0;
             MemoryFree = 0;
             Guests = 0;
-            CpuModel = "";
             DiskUsed = 0;
             DiskAllocated = 0;
             DiskSize = 0;
@@ -220,7 +219,6 @@ namespace Evacuation
             }
 		}
 
-
         private void LoadHypInfo()
         {
             // Load Host Info
@@ -237,6 +235,8 @@ namespace Evacuation
                 var cpus = host.cpu_info;
                 Cores = long.Parse(cpus["cpu_count"]);
                 CpuModel = Trimmer.Replace(cpus["modelname"], " ").Replace("Intel(R) Xeon(R) CPU ", "");
+                XenVersion = host.software_version["product_version"];
+                Uuid = host.uuid;
             }
         }
 
@@ -332,10 +332,12 @@ namespace Evacuation
 			return progress;
         }
 
-		private void LoadPatchInfo()
+		public void LoadPatchInfo()
 		{
-            // Load Host Patches
-            Patches = Host_patch.get_all_records(session).Where(p => p.Value.applied).Select(x => x.Value).ToList();
+			// Load Host Patches
+			//Patches = Pool_patch.get_all_records(session).Where(p => p.Value.pool_applied).Select(x => x.Value).ToList();
+			Patches = Pool_patch.get_all_records(session).Select(x => x.Value).ToList();
+
 			PatchCount = Patches.Count;
 		}
     }

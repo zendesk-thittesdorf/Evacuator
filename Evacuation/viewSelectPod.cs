@@ -95,11 +95,11 @@ namespace Evacuation
 			switch (segue.Identifier)
 			{
 				case "ViewSelectHyp":
-					ViewState.Pod = "";
-					if (tblPods.SelectedRow >= 0) ViewState.Pod = _podDataSource.Pods[(int)tblPods.SelectedRow];
 					NSWindowController wind = (NSWindowController)this.View.Window.WindowController;
 					wind.Close();
-                break;
+					var dest = (viewSelectHyp)segue.DestinationController;
+                    dest.Pod = (tblPods.SelectedRow >= 0) ? _podDataSource.Pods[(int)tblPods.SelectedRow] : "";
+					break;
 			}
 		}
 

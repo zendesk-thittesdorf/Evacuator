@@ -1,7 +1,28 @@
-2017-06-23 11:08:20.049 Evacuation[7339:5938863] Failed to connect (cmdEvacuateOutlet) outlet from (viewSelectHyp) to (NSButtonCell): missing setter or instance variable
-2017-06-23 11:08:45.065 Evacuation[7339:5938863] Could not connect action, target class viewMoving does not respond to -tblSourceVms:
-2017-06-23 11:08:45.065 Evacuation[7339:5938863] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
-2017-06-23 13:37:03.984 Evacuation[7339:5938863] Could not connect action, target class viewMoving does not respond to -tblSourceVms:
-2017-06-23 13:37:03.984 Evacuation[7339:5938863] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
-2017-06-23 15:57:30.177 Evacuation[7339:5938863] Could not connect action, target class viewMoving does not respond to -tblSourceVms:
-2017-06-23 15:57:30.177 Evacuation[7339:5938863] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
+2017-06-27 12:15:46.040 Evacuation[44843:6899011] Failed to connect (cmdEvacuateOutlet) outlet from (viewSelectHyp) to (NSButtonCell): missing setter or instance variable
+2017-06-27 12:16:41.162 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
+2017-06-27 12:16:41.162 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblSourceVms:
+2017-06-27 12:18:09.907 Evacuation[44843:6899011] IMKInputSession presentFunctionRowItemTextInputViewWithEndpoint:completionHandler: : [self textInputContext]=0x0 *NO* NSRemoteViewController to client, NSError=Error Domain=NSCocoaErrorDomain Code=4097 "connection from pid 0" UserInfo={NSDebugDescription=connection from pid 0}, com.apple.inputmethod.EmojiFunctionRowItem
+2017-06-27 12:18:18.355 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
+2017-06-27 12:18:18.355 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblSourceVms:
+2017-06-27 12:19:24.012 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
+2017-06-27 12:19:24.012 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblSourceVms:
+2017-06-27 12:22:33.662 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
+2017-06-27 12:22:33.662 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblSourceVms:
+2017-06-27 12:30:43.904 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
+2017-06-27 12:30:43.904 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblSourceVms:
+2017-06-27 12:55:49.935 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
+2017-06-27 12:55:49.935 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblSourceVms:
+2017-06-27 13:07:42.039 Evacuation[44843:6899011] IMKInputSession presentFunctionRowItemTextInputViewWithEndpoint:completionHandler: : [self textInputContext]=0x0 *NO* NSRemoteViewController to client, NSError=Error Domain=NSCocoaErrorDomain Code=4099 "The connection from pid 0 was invalidated from this process." UserInfo={NSDebugDescription=The connection from pid 0 was invalidated from this process.}, com.apple.inputmethod.EmojiFunctionRowItem
+2017-06-27 13:12:49.548 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
+2017-06-27 13:12:49.548 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblSourceVms:
+2017-06-27 13:23:59.342 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
+2017-06-27 13:23:59.342 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblSourceVms:
+2017-06-27 15:08:37.718 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
+2017-06-27 15:08:37.718 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblSourceVms:
+2017-06-27 15:16:29.769 Evacuation[44843:6899011] IMKInputSession presentFunctionRowItemTextInputViewWithEndpoint:completionHandler: : [self textInputContext]=0x0 *NO* NSRemoteViewController to client, NSError=Error Domain=NSCocoaErrorDomain Code=4099 "The connection from pid 0 was invalidated from this process." UserInfo={NSDebugDescription=The connection from pid 0 was invalidated from this process.}, com.apple.inputmethod.EmojiFunctionRowItem
+2017-06-27 17:10:12.138 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
+2017-06-27 17:10:12.138 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblSourceVms:
+2017-06-27 17:10:25.525 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
+2017-06-27 17:10:25.525 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblSourceVms:
+2017-06-27 17:10:54.920 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
+2017-06-27 17:10:54.920 Evacuation[44843:6899011] Could not connect action, target class viewMoving does not respond to -tblSourceVms:

@@ -13,6 +13,9 @@ namespace Evacuation
 	partial class viewMoving
 	{
 		[Outlet]
+		AppKit.NSButton btnPatchHost { get; set; }
+
+		[Outlet]
 		AppKit.NSButton btnPauseQueue { get; set; }
 
 		[Outlet]
@@ -36,11 +39,19 @@ namespace Evacuation
 		[Outlet]
 		AppKit.NSTableView tblSourceVms { get; set; }
 
+		[Action ("cmdPatchHost:")]
+		partial void cmdPatchHost (Foundation.NSObject sender);
+
 		[Action ("cmdPauseQueue:")]
 		partial void cmdPauseQueue (Foundation.NSObject sender);
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (btnPauseQueue != null) {
+				btnPauseQueue.Dispose ();
+				btnPauseQueue = null;
+			}
+
 			if (btnStartNewHost != null) {
 				btnStartNewHost.Dispose ();
 				btnStartNewHost = null;
@@ -49,6 +60,11 @@ namespace Evacuation
 			if (btnStartNewPod != null) {
 				btnStartNewPod.Dispose ();
 				btnStartNewPod = null;
+			}
+
+			if (btnPatchHost != null) {
+				btnPatchHost.Dispose ();
+				btnPatchHost = null;
 			}
 
 			if (lblSource != null) {
@@ -74,11 +90,6 @@ namespace Evacuation
 			if (tblSourceVms != null) {
 				tblSourceVms.Dispose ();
 				tblSourceVms = null;
-			}
-
-			if (btnPauseQueue != null) {
-				btnPauseQueue.Dispose ();
-				btnPauseQueue = null;
 			}
 		}
 	}

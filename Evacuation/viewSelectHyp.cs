@@ -17,7 +17,11 @@ namespace Evacuation
 {
 	public partial class viewSelectHyp : NSViewController
 	{
-        private List<Hypervisor> srcHyps
+		public string Pod = "";
+		public Hypervisor SourceHyp;
+		public List<Hypervisor> DestHyps = new List<Hypervisor>();
+
+		private List<Hypervisor> srcHyps
         {
             get{
                 return ((HypTable.DataSource)tblSourceHyp.DataSource).Hyps;
@@ -65,9 +69,9 @@ namespace Evacuation
         {
             dstHyps.Clear();
             if (tblSourceHyp.SelectedRow >= 0) {
-                ViewState.SourceHyp = srcHyps[(int)tblSourceHyp.SelectedRow];
-                var CPU = ViewState.SourceHyp.CpuVersion;
-                dstHyps = srcHyps.Where(x => x.CpuVersion == CPU && x.HostName != ViewState.SourceHyp.HostName).ToList();
+                SourceHyp = srcHyps[(int)tblSourceHyp.SelectedRow];
+                var CPU = SourceHyp.CpuVersion;
+                dstHyps = srcHyps.Where(x => x.CpuVersion == CPU && x.HostName != SourceHyp.HostName).ToList();
             }
             tblDestinationHyps.ReloadData();
             tblDestinationHyps.SelectAll(this);
@@ -91,7 +95,7 @@ namespace Evacuation
 				this.View.Window.Title = "Select Hyps - Loading Hyps";
 			});
 
-            var searchArea = ViewState.Pod;
+            var searchArea = Pod;
 				Parallel.For(1, 30, i =>
 				  {
 					  var hostName = searchArea.Replace("{n}", i.ToString());
@@ -136,29 +140,17 @@ namespace Evacuation
 			switch (segue.Identifier)
 			{
 				case "ViewEvacuate":
-					ViewState.DestHyps.Clear();
+					DestHyps.Clear();
 					var hypsDs = (HypTable.DataSource)tblDestinationHyps.DataSource;
-					foreach (var item in tblDestinationHyps.SelectedRows) ViewState.DestHyps.Add(hypsDs.Hyps[(int)item]);
+					foreach (var item in tblDestinationHyps.SelectedRows) DestHyps.Add(hypsDs.Hyps[(int)item]);
 					NSWindowController wind = (NSWindowController)this.View.Window.WindowController;
 					wind.Close();
+                    var dest = (viewMoving)segue.DestinationController;
+                    dest.Pod = Pod;
+                    dest.SourceHyp = SourceHyp;
+                    dest.DestHyps.AddRange(DestHyps);
 					break;
 			}
-		}
-
-		private List<Patch> LoadPatches(string ServerVersion)
-		{
-			var allPatches =
-				(Patchdata)(new XmlSerializer(typeof(Patchdata)))
-					.Deserialize(new MemoryStream(
-						Encoding.UTF8.GetBytes(
-							new System.Net.WebClient()
-								 .DownloadString("http://updates.xensource.com/XenServer/updates.xml"))));
-			List<Patch> minimalPatches = new List<Patch>();
-			foreach (var patch in allPatches.Serverversions.Version.First(x => x.Value == ServerVersion).Minimalpatches.Patch)
-			{
-				minimalPatches.Add(allPatches.Patches.Patch.First(y => y.Uuid == patch.Uuid));
-			}
-			return minimalPatches.OrderBy(y => y.Namelabel).ToList();
 		}
 	}
 }

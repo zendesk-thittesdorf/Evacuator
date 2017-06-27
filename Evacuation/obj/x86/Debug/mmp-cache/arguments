@@ -16,6 +16,8 @@
 	/assembly:/Users/thittesdorf/Projects/Evacuation/packages/SSH.NET.2016.0.0/lib/net40/Renci.SshNet.dll \
 	/assembly:/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/4.5/System.Core.dll \
 	/assembly:/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/4.5/System.dll \
+	/assembly:/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/4.5/System.Xml.dll \
+	/assembly:/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/4.5/System.Xml.Serialization.dll \
 	/assembly:/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/4.5/Xamarin.Mac.dll \
 	/assembly:/Users/thittesdorf/Projects/Evacuation/packages/CitrixXenServer70SDK.7.0/lib/XenServer.dll \
 	/Users/thittesdorf/Projects/Evacuation/Evacuation/bin/Debug/Evacuation.exe \

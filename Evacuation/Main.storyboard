@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12121"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -63,6 +62,7 @@
                                         <menuItem title="New" keyEquivalent="n" id="Was-JA-tGl">
                                             <connections>
                                                 <action selector="newDocument:" target="Ady-hI-5gd" id="4Si-XN-c54"/>
+                                                <segue destination="B8D-0N-5wS" kind="show" id="euc-8n-hFV"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem title="Open…" keyEquivalent="o" id="IAo-SY-fd9">
@@ -646,7 +646,7 @@
                 <customObject id="Voe-Tx-rLC" customClass="AppDelegate"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-547" y="-347"/>
+            <point key="canvasLocation" x="-547" y="-470"/>
         </scene>
         <!--Window Controller-->
         <scene sceneID="R2V-B0-nI4">
@@ -1544,9 +1544,21 @@
                                     <action selector="cmdPauseQueue:" target="FCr-Jd-NfI" id="ebM-Bj-nNf"/>
                                 </connections>
                             </button>
+                            <button hidden="YES" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="iyz-7e-36P">
+                                <rect key="frame" x="735" y="13" width="107" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                                <buttonCell key="cell" type="push" title="Patch Host" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="8rW-WY-h3V">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="cmdPatchHost:" target="FCr-Jd-NfI" id="vIE-1L-Ait"/>
+                                </connections>
+                            </button>
                         </subviews>
                     </view>
                     <connections>
+                        <outlet property="btnPatchHost" destination="iyz-7e-36P" id="x4D-pp-0Lh"/>
                         <outlet property="btnPauseQueue" destination="Mcz-89-Vwv" id="dLU-fF-aVc"/>
                         <outlet property="btnStartNewHost" destination="FhD-FP-vcN" id="2kh-wu-r48"/>
                         <outlet property="btnStartNewPod" destination="uxr-Cm-aHn" id="HiZ-dx-I8H"/>
@@ -1673,7 +1685,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="vbU-wD-rOa"/>
+        <segue reference="GV2-pn-j0R"/>
         <segue reference="1n5-gr-fzl"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -1,10 +1,73 @@
-﻿using System.Xml.Serialization;
+﻿using System;
+using System.Xml.Serialization;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Linq;
+using System.Net;
+using Renci.SshNet;
+
 namespace Evacuation
 {
 	[XmlRoot(ElementName = "patch")]
 	public class Patch
 	{
+		public static List<Patch> LoadPatches(Hypervisor hyp)
+		{
+            string ServerVersion = hyp.XenVersion;
+			var allPatches =
+				(Patchdata)(new XmlSerializer(typeof(Patchdata)))
+					.Deserialize(new MemoryStream(
+						Encoding.UTF8.GetBytes(
+							new WebClient()
+								 .DownloadString("http://updates.xensource.com/XenServer/updates.xml"))));
+			List<Patch> minimalPatches = new List<Patch>();
+            var hypPatches = hyp.Patches.Select(x => x.name_label.ToLower()).ToList();
+			foreach (var patch in allPatches.Serverversions.Version.First(x => x.Value == ServerVersion).Minimalpatches.Patch)
+			{
+                var curPatch = allPatches.Patches.Patch.First(y => y.Uuid == patch.Uuid);
+                if (!hypPatches.Contains(curPatch.Namelabel.ToLower())) minimalPatches.Add(curPatch);
+			}
+            return minimalPatches.OrderBy(y => y.Namelabel).ToList();
+		}
+
+        public static void ApplyPatch(Patch patch, Hypervisor hyp)
+        {
+            var connInfo = new ConnectionInfo(hyp.HostName, 22, "root", new AuthenticationMethod[] { new PasswordAuthenticationMethod("root", Models.Password.value) });
+            var patchPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/Documents/XenPatches/";
+            var fileName = patch.Patchurl.Split('&').First().Split('/').Last();
+            // Check if cache path exists
+            if (!Directory.Exists(patchPath)) Directory.CreateDirectory(patchPath);
+            // Check if download exists
+            if (!File.Exists(patchPath + fileName))
+            {
+                // Download
+                new WebClient().DownloadFile(patch.Patchurl, patchPath + fileName);
+			}
+            // SCP to Hypervisor
+            var sftp = new SftpClient(connInfo);
+            sftp.Connect();
+            sftp.ChangeDirectory("/tmp/");
+            using (var upFS = File.OpenRead(patchPath + fileName)){
+                sftp.UploadFile(upFS, fileName, true);
+            }
+            sftp.Disconnect();
+
+			// Apply Patch
+            using (var ssh = new SshClient(connInfo)){
+                var nameLabel = fileName.Split('.').First();
+                ssh.Connect();
+                var extract = ssh.CreateCommand("cd /tmp; unzip /tmp/" + fileName);
+				extract.Execute();
+                var upload = ssh.CreateCommand("xe patch-upload file-name=/tmp/" + nameLabel + ".iso");
+                upload.Execute();
+                hyp.LoadPatchInfo();
+                var patchToApplyUuid = hyp.Patches.Where(x => x.name_label == nameLabel).First().uuid;
+                var apply = ssh.CreateCommand("xe patch-apply uuid=" + patchToApplyUuid + " host-uuid=" + hyp.Uuid);
+                apply.Execute();
+            }
+		}
+
 		[XmlAttribute(AttributeName = "after-apply-guidance")]
 		public string Afterapplyguidance { get; set; }
 		[XmlAttribute(AttributeName = "name-description")]

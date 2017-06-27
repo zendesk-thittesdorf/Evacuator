@@ -15,6 +15,10 @@ namespace Evacuation
 {
 	public partial class viewMoving : NSViewController
 	{
+		public string Pod = "";
+		public Hypervisor SourceHyp;
+		public List<Hypervisor> DestHyps = new List<Hypervisor>();
+
         bool PauseQueue = false;
         bool Moving = true;
 
@@ -37,7 +41,7 @@ namespace Evacuation
             tblSourceVms.DataSource = vmDS;
             tblSourceVms.Delegate = new VmTable.Delegate(vmDS);
 
-            lblSource.StringValue = ViewState.SourceHyp.HostName;
+            lblSource.StringValue = SourceHyp.HostName;
             new Thread(() =>
             {
                 Reload();
@@ -55,18 +59,18 @@ namespace Evacuation
 
         private void RefreshData()
         {
-            ViewState.SourceHyp.Vms.Clear();
+            SourceHyp.Vms.Clear();
 			Parallel.Invoke(
-				() => ViewState.SourceHyp.LoadSourceHyp(),
-                () => { Parallel.ForEach(ViewState.DestHyps, hyp =>	{ hyp.LoadDestHyp();});
+				() => SourceHyp.LoadSourceHyp(),
+                () => { Parallel.ForEach(DestHyps, hyp =>	{ hyp.LoadDestHyp();});
             }
 			);
 			hypDS.Hyps.Clear();
-			hypDS.Hyps.AddRange(ViewState.DestHyps);
+			hypDS.Hyps.AddRange(DestHyps);
 			hypDS.Hyps.Sort();
 
 			vmDS.Vms.Clear();
-			vmDS.Vms.AddRange(ViewState.SourceHyp.Vms);
+			vmDS.Vms.AddRange(SourceHyp.Vms);
 			this.BeginInvokeOnMainThread(() =>
 			{
 				tblDestHyps.ReloadData();
@@ -77,7 +81,7 @@ namespace Evacuation
 		private Hypervisor ChooseDest(VirtualMachine VM)
 		{
             List<Hypervisor> destList = new List<Hypervisor>();
-			destList.AddRange(ViewState.DestHyps.Where(x => x.MemoryFree > VM.Memory));
+			destList.AddRange(DestHyps.Where(x => x.MemoryFree > VM.Memory));
             return destList
                     .OrderBy(x => x.GetHostgroupCount(VM.HostGroup))
                     .ThenByDescending(x => (Math.Floor(x.DiskFree * 2) / 2))
@@ -90,17 +94,17 @@ namespace Evacuation
             prgMove.Range(0,1);
             while (Moving)
             {
-                prgMove.Set(ViewState.SourceHyp.GetProgress());
+                prgMove.Set(SourceHyp.GetProgress());
                 Thread.Sleep(2000);
             }
         }
 
         private void EvacuateHyp()
         {
-			while (ViewState.SourceHyp.Vms.Count > 0)
+			while (SourceHyp.Vms.Count > 0)
             {
                 lblStatus.Set("Queueing work... " + vmDS.Vms.Count() + " vms");
-				MoveQueue = new Queue<VirtualMachine>(ViewState.SourceHyp.Vms);
+				MoveQueue = new Queue<VirtualMachine>(SourceHyp.Vms);
 
                 while (MoveQueue.Count() != 0)
                 {
@@ -110,7 +114,7 @@ namespace Evacuation
                     var dstHyp = ChooseDest(curVm);
                     lblStatus.Set("Moving " + curVm.Name + " to " + dstHyp.HostName + " - Queue Length = " + MoveQueue.Count());
 					prgMove.Hide(false);
-                    var mover = new HypMover(){SourceHyp = ViewState.SourceHyp.HostName, DestHyp = dstHyp.HostName, VMUUID = curVm.UUID};
+                    var mover = new HypMover(){SourceHyp = SourceHyp.HostName, DestHyp = dstHyp.HostName, VMUUID = curVm.UUID};
                     foreach (var netInfo in curVm.Networks) mover.VIFtoDstNetwork.Add(netInfo.VifUUID, dstHyp.NetworkByVlan[netInfo.VlanID]);
                     mover.MoveVM();
                     prgMove.Hide();
@@ -122,6 +126,7 @@ namespace Evacuation
             lblStatus.Set("Work completed!");
             btnStartNewHost.Hide(false);
             btnStartNewPod.Hide(false);
+            btnPatchHost.Hide(false);
             Moving = false;
         }
 
@@ -132,7 +137,12 @@ namespace Evacuation
             // Take action based on Segue ID
 			switch (segue.Identifier)
 			{
-				case "ReturnSelectHyp": case "ReturnSelectPod":
+				case "ReturnSelectHyp":
+					var dest = (viewSelectHyp)segue.DestinationController;
+					dest.Pod = Pod;
+					((NSWindowController)this.View.Window.WindowController).Close();
+					break;
+                case "ReturnSelectPod":
                     ((NSWindowController)this.View.Window.WindowController).Close();
 					break;
 			}
@@ -142,6 +152,23 @@ namespace Evacuation
         {
             PauseQueue = !PauseQueue;
             btnPauseQueue.Title = PauseQueue ? "Resume Queue" : "Pause Queue";
+        }
+
+        partial void cmdPatchHost(NSObject sender)
+        {
+            new Thread(() => PatchHyp()).Start();
+        }
+
+        private void PatchHyp()
+        {
+			var patches = Patch.LoadPatches(SourceHyp);
+			foreach (var patch in patches)
+			{
+                lblStatus.Set("Applying " + patch.Namelabel + " to " + SourceHyp.HostName);
+                prgMove.Hide();
+                Patch.ApplyPatch(patch, SourceHyp);
+			}
+            lblStatus.Set("Patch Attempt Finished");
         }
 	}
 }
