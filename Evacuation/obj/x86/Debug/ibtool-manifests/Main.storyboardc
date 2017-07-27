@@ -96,21 +96,6 @@
 				<integer>13</integer>
 			</dict>
 		</array>
-		<key>bJg-sO-RfF</key>
-		<array>
-			<dict>
-				<key>affected-objects</key>
-				<array>
-					<string>bJg-sO-RfF</string>
-				</array>
-				<key>message</key>
-				<string>View is clipping its content</string>
-				<key>type</key>
-				<string>IBClippedContent</string>
-				<key>type-value</key>
-				<integer>13</integer>
-			</dict>
-		</array>
 		<key>gtB-OJ-IEU</key>
 		<array>
 			<dict>

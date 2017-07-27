@@ -22,9 +22,6 @@ namespace Evacuation
 		AppKit.NSButton btnStartNewHost { get; set; }
 
 		[Outlet]
-		AppKit.NSButton btnStartNewPod { get; set; }
-
-		[Outlet]
 		AppKit.NSTextField lblSource { get; set; }
 
 		[Outlet]
@@ -72,11 +69,6 @@ namespace Evacuation
 			if (btnStartNewHost != null) {
 				btnStartNewHost.Dispose ();
 				btnStartNewHost = null;
-			}
-
-			if (btnStartNewPod != null) {
-				btnStartNewPod.Dispose ();
-				btnStartNewPod = null;
 			}
 
 			if (lblSource != null) {

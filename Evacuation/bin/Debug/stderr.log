@@ -1,1 +1,3 @@
-2017-07-27 13:45:26.384 Evacuation[17336:503355] Failed to connect (cmdEvacuateOutlet) outlet from (viewSelectHyp) to (NSButtonCell): missing setter or instance variable
+2017-07-27 14:59:49.625 Evacuation[18453:544182] Failed to connect (cmdEvacuateOutlet) outlet from (viewSelectHyp) to (NSButtonCell): missing setter or instance variable
+2017-07-27 15:00:55.720 Evacuation[18453:544182] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
+2017-07-27 15:00:55.720 Evacuation[18453:544182] Could not connect action, target class viewMoving does not respond to -tblSourceVms:

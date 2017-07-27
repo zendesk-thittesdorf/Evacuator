@@ -214,7 +214,6 @@ namespace Evacuation
             prgMove.Hide();
             lblStatus.Set("Work completed!");
             btnStartNewHost.Hide(false);
-            btnStartNewPod.Hide(false);
             btnPatchHost.Hide(false);
             Moving = false;
         }
@@ -229,9 +228,6 @@ namespace Evacuation
                 case "ReturnSelectHyp":
                     var dest = (viewSelectHyp)segue.DestinationController;
                     dest.Pod = Pod;
-                    ((NSWindowController)this.View.Window.WindowController).Close();
-                    break;
-                case "ReturnSelectPod":
                     ((NSWindowController)this.View.Window.WindowController).Close();
                     break;
             }
