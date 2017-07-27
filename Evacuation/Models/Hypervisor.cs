@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
-using Utilities;
 
 using XenAPI;
 using System.Threading.Tasks;
@@ -16,7 +15,7 @@ namespace Evacuation
 
         public string SearchArea = "";
 
-        public readonly List<VirtualMachine> Vms = new List<VirtualMachine>();
+        public List<VirtualMachine> Vms = new List<VirtualMachine>();
         public string HostName { get; set; } = "";
         public string Uuid { get; set; } = "";
         public string XenVersion { get; set; } = "";
@@ -34,38 +33,22 @@ namespace Evacuation
         public string VolumeTypes { get; set; } = "";
         public int CurMovesToMe = 0;
 		public long PatchCount { get; set; } = 0;
+		public string SortPod => (Pod == 0) ? HostName.Split('.')[1] : Pod.ToString("000");
+		public string SortHost => Host.ToString("000");
         public List<Pool_patch> Patches;
+        public int Host => int.Parse(HostNameAt(0).Replace("adminhyp", "").Replace("hyp", ""));
+        public int Pod => (HostNameAt(1).Contains("pod")) ? int.Parse(HostNameAt(1).Replace("pod", "")) : 0;
+        public string DC => (HostNameAt(1).Contains("pod")) ? HostNameAt(2) : HostNameAt(1);
+        public bool ActiveSession => session != null;
+        public long CoresRemaining => Cores - CoresAllocated;
 
-		public long CoresRemaining => Cores - CoresAllocated;
-        public string CpuVersion {
-            get{
-                try
-                {
-                    var tmp = CpuModel.Substring(CpuModel.IndexOf(' ') + 1);
-                    var app = tmp.IndexOf(' ');
-                    return tmp.Substring(0, tmp.IndexOf(' '));
-				}
-                catch
-                {
-                    return "";
-                }
-            }
-        }
+        public string CpuVersion => Utilities.TryOrDefault<string, string>(() => {
+			var tmp = CpuModel.Substring(CpuModel.IndexOf(' ') + 1);
+			return tmp.Substring(0, tmp.IndexOf(' '));
+		}, "");
 
-        public int GetHostgroupCount(string Hostgroup)
-        {
-            var toReturn = 0;
-            try
-            {
-                var vms = Vms.Where(x => x.HostGroup == Hostgroup);
-                toReturn = vms.Count();
-            }
-            catch (Exception)
-            {
+        public int GetHostgroupCount(string HostGroup) => Utilities.TryOrDefault<int, int>(() => Vms.Where(x => x.HostGroup == HostGroup).Count(), 0);
 
-            }
-            return toReturn;
-        }
 
         public List<long> Vlans { get; set; } = new List<long>();
 
@@ -84,53 +67,45 @@ namespace Evacuation
             }
             catch
             {
-			    
+			    //Already logged out
 			}		
-        }
-
-        public string SortPod
-        {
-            get
-            {
-                if (Pod == 0)
-                    return HostName.Split('.')[1];
-                else
-                    return Pod.ToString("000");
-            }
-        }
-
-        public string SortHost
-        {
-            get
-            {
-                return Host.ToString("000");
-            }
         }
 
         void LoadSession()
         {
-            // Establish a session
-            // Trust the self-signed certs
-            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
-            session = new Session(HostName, 443);
-
-            // Authenticate with username and password. The third parameter tells the server which API version we support.
-            session.login_with_password("root", Models.Password.value, API_Version.API_2_5);
+            if (session == null)
+            {
+				try
+				{
+					// Establish a session
+					// Trust the self-signed certs
+					ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+					ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+					session = new Session(HostName, 443);
+					// Authenticate with username and password. The third parameter tells the server which API version we support.
+					session.login_with_password("root", Models.Password.ToString(), API_Version.API_2_5);
+				}
+				catch (Exception)
+				{
+					session = null;
+				}
+            }
         }
 
 
         public void Load()
         {
             Clear();
-            if (session == null) LoadSession();
-
-            Parallel.Invoke(
-                () => LoadHypInfo(),
-                () => LoadHypDiskInfo(),
-                () => LoadVMInfo(),
-                () => LoadPatchInfo()
-            );
+            LoadSession();
+            if (session != null)
+            {
+                Parallel.Invoke(
+                    () => LoadHypInfo(),
+                    () => LoadHypDiskInfo(),
+                    () => LoadVMInfo(),
+                    () => LoadPatchInfo()
+                );
+            }
         }
 
         private void Clear()
@@ -156,25 +131,30 @@ namespace Evacuation
         public void LoadSourceHyp()
         {
 			Clear();
-			if (session == null) LoadSession();
-            LoadVMInfo();
-			LoadPIFByNetwork();
-			LoadVIF();
+			LoadSession();
+			if (session != null)
+			{
+				LoadVMInfo();
+				LoadPIFByNetwork();
+				LoadVIF();
+			}
         }
 
         public void LoadDestHyp()
         {
 			Clear();
-			if (session == null) LoadSession();
-
-			Parallel.Invoke(
-				() => LoadHypInfo(),
-				() => LoadHypDiskInfo(),
-				() => LoadVMInfo(),
-				() => LoadPatchInfo()
-			);
-            LoadNetwork();
-            LoadNetworkByVlan();
+			LoadSession();
+			if (session != null)
+			{
+				Parallel.Invoke(
+					() => LoadHypInfo(),
+					() => LoadHypDiskInfo(),
+					() => LoadVMInfo(),
+					() => LoadPatchInfo()
+				);
+				LoadNetwork();
+				LoadNetworkByVlan();
+			}
         }
 
         private void LoadNetwork()
@@ -258,18 +238,19 @@ namespace Evacuation
         private void LoadVMInfo()
         {
             // Load VM Info
-            List<VM> vms = (from vm in (VM.get_all_records(session)
-                               .Where(v => v.Value.is_a_template == false && v.Value.is_a_snapshot == false && v.Value.power_state == vm_power_state.Running))
+            var vms = (from vm in (VM.get_all_records(session)
+                               .Where(v => v.Value.is_a_template == false && v.Value.is_a_snapshot == false && v.Value.power_state == vm_power_state.Running && !v.Value.is_control_domain))
                             select vm.Value).ToList();
             Dictionary<XenRef<VM_guest_metrics>, VM_guest_metrics> vmMetrics = VM_guest_metrics.get_all_records(session);
 
-            foreach (var vm in vms.Where(v => !(v.is_control_domain)))
+            foreach (VM vm in vms)
             {
-                CoresAllocated += vm.VCPUs_max;
-                MemoryAllocated += vm.memory_static_max.KbToGb();
-                Vms.Add(new VirtualMachine(vm));
+                var tmpVm = new VirtualMachine() {Vm = vm};
+                Vms.Add(tmpVm);
+                CoresAllocated += tmpVm.Cores;
+                MemoryAllocated += tmpVm.Memory;
             }
-            if (vms != null) Guests = vms.Count;
+            if (Vms != null) Guests = Vms.Count;
         }
 
         public int CompareTo(Hypervisor other)
@@ -282,63 +263,54 @@ namespace Evacuation
 
         }
 
-        public int Host
-        {
-            get
-            {
-                var hostString = HostName.Split('.')[0];
-                if (hostString.Contains("adminhyp"))
-                    return int.Parse(hostString.Replace("adminhyp", ""));
-                return int.Parse(hostString.Replace("hyp", ""));
-            }
-        }
-
-        public int Pod
-        {
-            get
-            {
-                var podString = HostName.Split('.')[1];
-                return (podString.Contains("pod")) ? int.Parse(podString.Replace("pod", "")) : 0;
-            }
-        }
-
-        public string DC
-        {
-            get
-            {
-                var podString = HostName.Split('.')[1];
-                return (podString.Contains("pod")) ? HostName.Split('.')[2] : podString;
-            }
-        }
-
-        public double GetProgress()
-        {
-			double progress = 0;
-
-			try
-            {
+		public double GetProgress(out int TaskCount)
+		{
+            try
+			{
 				if (session == null) LoadSession();
 				var tasks = XenAPI.Task.get_all_records(session).Where(x => x.Value.name_label == "VM.migrate_send").Select(x => x.Value).ToList();
-				if (tasks.Count > 0)
-				{
-					progress = (tasks[0].progress);
-				}
-            }
-            catch (Exception)
-            {
+				TaskCount = tasks.Count;
+                return tasks.Sum(x => x.progress) / TaskCount;
+			}
+			catch
+			{
+                TaskCount = 0;
+                return 0;
+			}
+		}
 
-            }
-
-			return progress;
+        public List<double> GetProgress()
+        {
+            List<double> taskStatus = new List<double>();
+			try
+			{
+				if (session == null) LoadSession();
+				var tasks = XenAPI.Task.get_all_records(session).Where(x => x.Value.name_label == "VM.migrate_send").OrderBy(x => x.Value.created).Select(x => x.Value).ToList();
+                return tasks.Select(x => x.progress).ToList();
+			}
+			catch
+			{
+                return new List<double>();
+			}
         }
 
 		public void LoadPatchInfo()
 		{
 			// Load Host Patches
-			//Patches = Pool_patch.get_all_records(session).Where(p => p.Value.pool_applied).Select(x => x.Value).ToList();
 			Patches = Pool_patch.get_all_records(session).Select(x => x.Value).ToList();
-
 			PatchCount = Patches.Count;
+		}
+
+		private string HostNameAt(int i)
+		{
+			try
+			{
+				return HostName.Split('.')[i];
+			}
+			catch
+			{
+				return "";
+			}
 		}
     }
 }

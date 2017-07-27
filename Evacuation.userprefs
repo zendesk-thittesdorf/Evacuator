@@ -1,11 +1,15 @@
 ﻿<Properties StartupConfiguration="{BC5FBEF1-BF96-40DD-940E-AF97F0893260}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Evacuation/viewSelectPod.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Evacuation/Models/VirtualMachine.cs">
     <Files>
-      <File FileName="Evacuation/viewSelectPod.cs" Line="99" Column="86" />
-      <File FileName="Evacuation/Patch.cs" Line="74" Column="46" />
-      <File FileName="Evacuation/Models/Hypervisor.cs" Line="335" Column="9" NotebookId="1" />
-      <File FileName="Evacuation/viewMoving.cs" Line="19" Column="1" NotebookId="1" />
-      <File FileName="Evacuation/viewSelectHyp.cs" Line="74" Column="83" NotebookId="1" />
+      <File FileName="Evacuation/viewMoving.cs" Line="10" Column="24" />
+      <File FileName="Evacuation/HypMover.cs" Line="47" Column="13" />
+      <File FileName="Evacuation/Models/Hypervisor.cs" Line="317" Column="1" />
+      <File FileName="Evacuation/viewSelectPod.cs" Line="40" Column="6" />
+      <File FileName="Evacuation/viewSelectHyp.cs" Line="127" Column="1" />
+      <File FileName="Evacuation/MainWindow.cs" Line="16" Column="1" />
+      <File FileName="Evacuation/Utilities.cs" Line="172" Column="141" />
+      <File FileName="Evacuation/Models/Password.cs" Line="43" Column="20" />
+      <File FileName="Evacuation/Models/VirtualMachine.cs" Line="26" Column="50" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />

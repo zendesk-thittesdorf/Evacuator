@@ -5,19 +5,12 @@ namespace Evacuation.Models
 {
     public static class Password
     {
-        public static string value = "";
+        static string value = "";
 
-        public static void Load()
+        static void Load()
         {
 			byte[] pass = null;
-			if (SecKeyChain.FindGenericPassword("XenReporter", "root", out pass) == SecStatusCode.Success)
-			{
-				value = Encoding.UTF8.GetString(pass);
-			}
-			else
-			{
-                value = "";
-            }
+            value = (SecKeyChain.FindGenericPassword("XenReporter", "root", out pass) == SecStatusCode.Success) ? value = Encoding.UTF8.GetString(pass) : "";
         }
 
         public static void Save(this string Pass)
@@ -36,6 +29,12 @@ namespace Evacuation.Models
 				SecKeyChain.AddGenericPassword("XenReporter", "root", Encoding.UTF8.GetBytes(Pass));
 			}
 			Load();
+        }
+
+        public new static string ToString()
+        {
+            Load();
+            return value;
         }
     }
 }

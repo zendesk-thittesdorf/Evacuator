@@ -77,7 +77,6 @@
   <ItemGroup>
     <Folder Include="Resources\" />
     <Folder Include="PodTable\" />
-    <Folder Include="Utilities\" />
     <Folder Include="Models\" />
     <Folder Include="HypTable\" />
     <Folder Include="VmTable\" />
@@ -104,7 +103,6 @@
     </Compile>
     <Compile Include="PodTable\DataSource.cs" />
     <Compile Include="PodTable\Delegate.cs" />
-    <Compile Include="Utilities\Utilities.cs" />
     <Compile Include="Models\HostgroupDS.cs" />
     <Compile Include="Models\Hypervisor.cs" />
     <Compile Include="Models\Password.cs" />
@@ -119,6 +117,7 @@
     <Compile Include="VmTable\DataSource.cs" />
     <Compile Include="VmTable\Delegate.cs" />
     <Compile Include="Patch.cs" />
+    <Compile Include="Utilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />

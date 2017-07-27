@@ -8,28 +8,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
-using CoreFoundation;
-using Utilities;
 
 namespace Evacuation
 {
-	public partial class viewMoving : NSViewController
-	{
-		public string Pod = "";
-		public Hypervisor SourceHyp;
-		public List<Hypervisor> DestHyps = new List<Hypervisor>();
+    public partial class viewMoving : NSViewController
+    {
+        private Object _lock = new object();
+
+        public string Pod = "";
+        public Hypervisor SourceHyp;
+        public List<Hypervisor> DestHyps = new List<Hypervisor>();
 
         bool PauseQueue = false;
         bool Moving = true;
 
-		HypTable.DataSource hypDS = new HypTable.DataSource();
-		VmTable.DataSource vmDS = new VmTable.DataSource();
+        HypTable.DataSource hypDS = new HypTable.DataSource();
+        VmTable.DataSource vmDS = new VmTable.DataSource();
 
-		private Queue<VirtualMachine> MoveQueue = new Queue<VirtualMachine>();
+        private Queue<VirtualMachine> MoveQueue = new Queue<VirtualMachine>();
 
-		public viewMoving (IntPtr handle) : base (handle)
-		{
-		}
+        public viewMoving(IntPtr handle) : base(handle)
+        {
+        }
 
         public override void ViewDidLoad()
         {
@@ -45,84 +45,173 @@ namespace Evacuation
             new Thread(() =>
             {
                 Reload();
-				EvacuateHyp();
-			}).Start();
+                EvacuateHyp();
+            }).Start();
             new Thread(() => UpdateProgress()).Start();
-		}
+        }
 
         private void Reload()
         {
             lblStatus.Set("Refreshing Hypervisor/VM Info...");
             RefreshData();
             lblStatus.Set("Hypervisor/VM Info Loaded...");
-		}
+        }
 
         private void RefreshData()
         {
-            SourceHyp.Vms.Clear();
-			Parallel.Invoke(
-				() => SourceHyp.LoadSourceHyp(),
-                () => { Parallel.ForEach(DestHyps, hyp =>	{ hyp.LoadDestHyp();});
+            lock (_lock)
+            {
+                bool loaded = false;
+                while (!loaded)
+                {
+                    SourceHyp.Vms.Clear();
+                    try
+                    {
+                        Parallel.Invoke(
+                            () => SourceHyp.LoadSourceHyp(),
+                            () =>
+                            {
+                                Parallel.ForEach(DestHyps, hyp => { hyp.LoadDestHyp(); });
+                            }
+                        );
+
+                        hypDS.Hyps.Clear();
+                        hypDS.Hyps.AddRange(DestHyps);
+                        hypDS.Hyps.Sort();
+
+                        vmDS.Vms.Clear();
+                        vmDS.Vms.AddRange(SourceHyp.Vms);
+                        this.BeginInvokeOnMainThread(() =>
+                        {
+                            tblDestHyps.ReloadData();
+                            tblSourceVms.ReloadData();
+                        });
+                        loaded = true;
+                    }
+                    catch
+                    {
+                        lblStatus.Set("Problem encountered while loading hyp info.  Will retry in 30 sec.");
+                        Thread.Sleep(30000);
+                    }
+                }
             }
-			);
-			hypDS.Hyps.Clear();
-			hypDS.Hyps.AddRange(DestHyps);
-			hypDS.Hyps.Sort();
+        }
 
-			vmDS.Vms.Clear();
-			vmDS.Vms.AddRange(SourceHyp.Vms);
-			this.BeginInvokeOnMainThread(() =>
-			{
-				tblDestHyps.ReloadData();
-				tblSourceVms.ReloadData();
-			});
-		}
-
-		private Hypervisor ChooseDest(VirtualMachine VM)
-		{
-            List<Hypervisor> destList = new List<Hypervisor>();
-			destList.AddRange(DestHyps.Where(x => x.MemoryFree > VM.Memory));
-            return destList
-                    .OrderBy(x => x.GetHostgroupCount(VM.HostGroup))
-                    .ThenByDescending(x => (Math.Floor(x.DiskFree * 2) / 2))
-                    .ThenByDescending(x => x.CoresRemaining)
-                    .ThenByDescending(x => x.MemoryFree).First();
-		}
+        private Hypervisor ChooseDest(VirtualMachine VM)
+        {
+            lock (_lock)
+            {
+                List<Hypervisor> destList = new List<Hypervisor>();
+                destList.AddRange(DestHyps.Where(x => x.MemoryFree > VM.Memory));
+                return destList
+                        .OrderBy(x => x.GetHostgroupCount(VM.HostGroup))
+                        .ThenByDescending(x => (Math.Floor(x.DiskFree * 2) / 2))
+                        .ThenByDescending(x => x.CoresRemaining)
+                        .ThenByDescending(x => x.MemoryFree).First();
+            }
+        }
 
         private void UpdateProgress()
         {
-            prgMove.Range(0,1);
+            prgMove.Range(0, 1);
             while (Moving)
             {
-                prgMove.Set(SourceHyp.GetProgress());
+                //prgMove.Set(SourceHyp.GetProgress());
+                //int TaskCount;
+                //prgMove.Set(SourceHyp.GetProgress(out TaskCount));
+                //lblStatus.Set("Moves in progress: " + TaskCount);
+
+                var tasks = SourceHyp.GetProgress();
+
+                if (tasks.Count > 0)
+                {
+                    prgMove.Hide(false);
+                    prgMove.Set(tasks[0]);
+					lblStatus.Set("Moves in progress: " + tasks.Count);
+				}
+				if (tasks.Count > 1)
+				{
+					prgMove2.Hide(false);
+					prgMove2.Set(tasks[1]);
+				}
+				if (tasks.Count > 2)
+				{
+					prgMove3.Hide(false);
+					prgMove3.Set(tasks[2]);
+				}
+                if (tasks.Count < 3)
+                {
+                    prgMove3.Hide();
+                    prgMove3.Set(0);
+                }
+				if (tasks.Count < 2)
+				{
+					prgMove2.Hide();
+                    prgMove2.Set(0);
+				}
+				if (tasks.Count < 1)
+				{
+					prgMove.Hide();
+                    prgMove.Set(0);
+					if (PauseQueue) lblStatus.Set("Queue Paused...");
+				}
                 Thread.Sleep(2000);
             }
         }
 
         private void EvacuateHyp()
         {
-			while (SourceHyp.Vms.Count > 0)
+            while (SourceHyp.Vms.Count > 0)
             {
                 lblStatus.Set("Queueing work... " + vmDS.Vms.Count() + " vms");
-				MoveQueue = new Queue<VirtualMachine>(SourceHyp.Vms);
-
-                while (MoveQueue.Count() != 0)
+                var multiMove = new List<VirtualMachine>(SourceHyp.Vms);
+                Parallel.ForEach(multiMove, new ParallelOptions { MaxDegreeOfParallelism = 3 }, curVm =>
                 {
-                    if (PauseQueue) lblStatus.Set("Paused...");
-                    while (PauseQueue) {Thread.Sleep(2000);}
-                    var curVm = MoveQueue.Dequeue();
-                    var dstHyp = ChooseDest(curVm);
-                    lblStatus.Set("Moving " + curVm.Name + " to " + dstHyp.HostName + " - Queue Length = " + MoveQueue.Count());
-					prgMove.Hide(false);
-                    var mover = new HypMover(){SourceHyp = SourceHyp.HostName, DestHyp = dstHyp.HostName, VMUUID = curVm.UUID};
-                    foreach (var netInfo in curVm.Networks) mover.VIFtoDstNetwork.Add(netInfo.VifUUID, dstHyp.NetworkByVlan[netInfo.VlanID]);
-                    mover.MoveVM();
-                    prgMove.Hide();
-                    lblStatus.Set("Refreshing Hypervisor/VM Info...");
-                    RefreshData();
-                }
-            }
+                    while (PauseQueue) { Thread.Sleep(2000); }
+                    try
+                    {
+                        var dstHyp = ChooseDest(curVm);
+                        prgMove.Hide(false);
+                        var mover = new HypMover() { SourceHyp = SourceHyp.HostName, DestHyp = dstHyp.HostName, VMUUID = curVm.UUID };
+                        foreach (var netInfo in curVm.Networks) mover.VIFtoDstNetwork.Add(netInfo.VifUUID, dstHyp.NetworkByVlan[netInfo.VlanID]);
+                        mover.MoveVM();
+                    }
+                    catch
+                    {
 
+                    }
+                    RefreshData();
+                });
+
+                //    MoveQueue = new Queue<VirtualMachine>(SourceHyp.Vms);
+
+                //    while (MoveQueue.Any())
+                //    {
+                //        if (PauseQueue) lblStatus.Set("Paused...");
+                //        while (PauseQueue) { Thread.Sleep(2000); }
+                //        try
+                //        {
+                //            var curVm = MoveQueue.Dequeue();
+                //            var dstHyp = ChooseDest(curVm);
+                //            lblStatus.Set("Moving " + curVm.Name + " to " + dstHyp.HostName + " - Queue Length = " + MoveQueue.Count());
+                //            prgMove.Hide(false);
+                //            var mover = new HypMover() { SourceHyp = SourceHyp.HostName, DestHyp = dstHyp.HostName, VMUUID = curVm.UUID };
+                //            foreach (var netInfo in curVm.Networks) mover.VIFtoDstNetwork.Add(netInfo.VifUUID, dstHyp.NetworkByVlan[netInfo.VlanID]);
+                //            mover.MoveVM();
+                //        }
+                //        catch
+                //        {
+                //            prgMove.Hide();
+                //            lblStatus.Set("Something went boom during that move attempt...");
+                //            Thread.Sleep(5000);
+                //        }
+
+                //        prgMove.Hide();
+                //        lblStatus.Set("Refreshing Hypervisor/VM Info...");
+                //        RefreshData();
+                //    }
+            }
+            prgMove.Hide();
             lblStatus.Set("Work completed!");
             btnStartNewHost.Hide(false);
             btnStartNewPod.Hide(false);
@@ -130,23 +219,23 @@ namespace Evacuation
             Moving = false;
         }
 
-		public override void PrepareForSegue(NSStoryboardSegue segue, NSObject sender)
-		{
-			base.PrepareForSegue(segue, sender);
+        public override void PrepareForSegue(NSStoryboardSegue segue, NSObject sender)
+        {
+            base.PrepareForSegue(segue, sender);
 
             // Take action based on Segue ID
-			switch (segue.Identifier)
-			{
-				case "ReturnSelectHyp":
-					var dest = (viewSelectHyp)segue.DestinationController;
-					dest.Pod = Pod;
-					((NSWindowController)this.View.Window.WindowController).Close();
-					break;
+            switch (segue.Identifier)
+            {
+                case "ReturnSelectHyp":
+                    var dest = (viewSelectHyp)segue.DestinationController;
+                    dest.Pod = Pod;
+                    ((NSWindowController)this.View.Window.WindowController).Close();
+                    break;
                 case "ReturnSelectPod":
                     ((NSWindowController)this.View.Window.WindowController).Close();
-					break;
-			}
-		}
+                    break;
+            }
+        }
 
         partial void cmdPauseQueue(NSObject sender)
         {
@@ -161,14 +250,24 @@ namespace Evacuation
 
         private void PatchHyp()
         {
-			var patches = Patch.LoadPatches(SourceHyp);
-			foreach (var patch in patches)
-			{
+            var patches = Patch.LoadPatches(SourceHyp);
+            foreach (var patch in patches)
+            {
                 lblStatus.Set("Applying " + patch.Namelabel + " to " + SourceHyp.HostName);
                 prgMove.Hide();
                 Patch.ApplyPatch(patch, SourceHyp);
-			}
+            }
             lblStatus.Set("Patch Attempt Finished");
         }
-	}
+
+        partial void cmdLaunchConsole(NSObject sender)
+        {
+            SourceHyp.OpenIdrac();
+        }
+
+		partial void cmdCopyMoob(NSObject sender)
+		{
+			SourceHyp.LaunchMoobConsole();
+		}
+    }
 }

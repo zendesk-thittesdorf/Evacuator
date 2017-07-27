@@ -16,10 +16,19 @@ namespace Evacuation
 		AppKit.NSButton btnEvacuate { get; set; }
 
 		[Outlet]
+		AppKit.NSButton btnLaunchConsole { get; set; }
+
+		[Outlet]
 		AppKit.NSTableView tblDestinationHyps { get; set; }
 
 		[Outlet]
 		AppKit.NSTableView tblSourceHyp { get; set; }
+
+		[Action ("cmdCopyMoob:")]
+		partial void cmdCopyMoob (Foundation.NSObject sender);
+
+		[Action ("cmdLaunchConsole:")]
+		partial void cmdLaunchConsole (Foundation.NSObject sender);
 
 		[Action ("cmdShowAllDest:")]
 		partial void cmdShowAllDest (Foundation.NSObject sender);
@@ -35,6 +44,11 @@ namespace Evacuation
 			if (btnEvacuate != null) {
 				btnEvacuate.Dispose ();
 				btnEvacuate = null;
+			}
+
+			if (btnLaunchConsole != null) {
+				btnLaunchConsole.Dispose ();
+				btnLaunchConsole = null;
 			}
 
 			if (tblDestinationHyps != null) {

@@ -37,13 +37,13 @@ namespace Evacuation.HypTable
 				case "Destination Hypervisors":
 					view.StringValue = hyp.HostName;
 					break;
-				case "CPUs Remain":
+				case "CPUs Remain": case "CPUs Free":
                     view.StringValue = (hyp.Cores - hyp.CoresAllocated).ToString();
 					break;
 				case "CPUs Used":
 					view.StringValue = hyp.CoresAllocated.ToString();
 					break;
-				case "Disk Remain":
+				case "Disk Remain": case "Disk Free":
 					view.StringValue = (hyp.DiskSize - hyp.DiskUsed).ToString();
 					break;
 				case "Disk Used":
@@ -52,7 +52,7 @@ namespace Evacuation.HypTable
 				case "CPU Model":
 					view.StringValue = hyp.CpuModel;
 					break;
-				case "Memory Remain":
+				case "Memory Remain": case "Memory Free":
 					view.StringValue = hyp.MemoryFree.ToString();
 					break;
 				case "Patches":

@@ -33,7 +33,7 @@ namespace Evacuation
 
         public static void ApplyPatch(Patch patch, Hypervisor hyp)
         {
-            var connInfo = new ConnectionInfo(hyp.HostName, 22, "root", new AuthenticationMethod[] { new PasswordAuthenticationMethod("root", Models.Password.value) });
+            var connInfo = new ConnectionInfo(hyp.HostName, 22, "root", new AuthenticationMethod[] { new PasswordAuthenticationMethod("root", Models.Password.ToString()) });
             var patchPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/Documents/XenPatches/";
             var fileName = patch.Patchurl.Split('&').First().Split('/').Last();
             // Check if cache path exists

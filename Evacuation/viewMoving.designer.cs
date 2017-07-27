@@ -34,10 +34,22 @@ namespace Evacuation
 		AppKit.NSProgressIndicator prgMove { get; set; }
 
 		[Outlet]
+		AppKit.NSProgressIndicator prgMove2 { get; set; }
+
+		[Outlet]
+		AppKit.NSProgressIndicator prgMove3 { get; set; }
+
+		[Outlet]
 		AppKit.NSTableView tblDestHyps { get; set; }
 
 		[Outlet]
 		AppKit.NSTableView tblSourceVms { get; set; }
+
+		[Action ("cmdCopyMoob:")]
+		partial void cmdCopyMoob (Foundation.NSObject sender);
+
+		[Action ("cmdLaunchConsole:")]
+		partial void cmdLaunchConsole (Foundation.NSObject sender);
 
 		[Action ("cmdPatchHost:")]
 		partial void cmdPatchHost (Foundation.NSObject sender);
@@ -47,6 +59,11 @@ namespace Evacuation
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (btnPatchHost != null) {
+				btnPatchHost.Dispose ();
+				btnPatchHost = null;
+			}
+
 			if (btnPauseQueue != null) {
 				btnPauseQueue.Dispose ();
 				btnPauseQueue = null;
@@ -62,11 +79,6 @@ namespace Evacuation
 				btnStartNewPod = null;
 			}
 
-			if (btnPatchHost != null) {
-				btnPatchHost.Dispose ();
-				btnPatchHost = null;
-			}
-
 			if (lblSource != null) {
 				lblSource.Dispose ();
 				lblSource = null;
@@ -80,6 +92,16 @@ namespace Evacuation
 			if (prgMove != null) {
 				prgMove.Dispose ();
 				prgMove = null;
+			}
+
+			if (prgMove2 != null) {
+				prgMove2.Dispose ();
+				prgMove2 = null;
+			}
+
+			if (prgMove3 != null) {
+				prgMove3.Dispose ();
+				prgMove3 = null;
 			}
 
 			if (tblDestHyps != null) {

@@ -15,13 +15,24 @@ namespace Evacuation
 
         public void MoveVM()
         {
-            using (var client = new SshClient(SourceHyp, Username, Models.Password.value))
+            using (var client = new SshClient(SourceHyp, Username, Models.Password.ToString()))
             {
-                client.Connect();
-                client.RunCommand("xe vm-migrate --live host=" + DestHyp + " remote-master=" + 
-                                  DestHyp + " remote-username=" + Username + " remote-password=" + 
-                                  Models.Password.value + " vm=" + VMUUID + GetNetworkMap());
-                client.Disconnect();
+                try
+                {
+					client.Connect();
+				}
+                catch
+                {
+
+                }
+                if (client.IsConnected)
+                {
+					client.RunCommand("xe vm-migrate --live host=" + DestHyp + " remote-master=" +
+				        DestHyp + " remote-username=" + Username + " remote-password=" +
+				        Models.Password.ToString() + " vm=" + VMUUID + GetNetworkMap());
+					client.Disconnect();
+                }
+
             }
         }
 

@@ -6,21 +6,6 @@
 	<dict/>
 	<key>com.apple.ibtool.document.notices</key>
 	<dict>
-		<key>5EU-gk-EAH</key>
-		<array>
-			<dict>
-				<key>affected-objects</key>
-				<array>
-					<string>5EU-gk-EAH</string>
-				</array>
-				<key>message</key>
-				<string>View is clipping its content</string>
-				<key>type</key>
-				<string>IBClippedContent</string>
-				<key>type-value</key>
-				<integer>13</integer>
-			</dict>
-		</array>
 		<key>FEe-OV-WOc</key>
 		<array>
 			<dict>
@@ -96,12 +81,12 @@
 				<integer>13</integer>
 			</dict>
 		</array>
-		<key>gtB-OJ-IEU</key>
+		<key>X1G-aj-SNq</key>
 		<array>
 			<dict>
 				<key>affected-objects</key>
 				<array>
-					<string>gtB-OJ-IEU</string>
+					<string>X1G-aj-SNq</string>
 				</array>
 				<key>message</key>
 				<string>View is clipping its content</string>
@@ -111,12 +96,27 @@
 				<integer>13</integer>
 			</dict>
 		</array>
-		<key>n47-NG-c1m</key>
+		<key>bJg-sO-RfF</key>
 		<array>
 			<dict>
 				<key>affected-objects</key>
 				<array>
-					<string>n47-NG-c1m</string>
+					<string>bJg-sO-RfF</string>
+				</array>
+				<key>message</key>
+				<string>View is clipping its content</string>
+				<key>type</key>
+				<string>IBClippedContent</string>
+				<key>type-value</key>
+				<integer>13</integer>
+			</dict>
+		</array>
+		<key>gtB-OJ-IEU</key>
+		<array>
+			<dict>
+				<key>affected-objects</key>
+				<array>
+					<string>gtB-OJ-IEU</string>
 				</array>
 				<key>message</key>
 				<string>View is clipping its content</string>

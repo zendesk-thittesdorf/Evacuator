@@ -6,12 +6,8 @@ using Foundation;
 using AppKit;
 using System.Threading.Tasks;
 using System.Threading;
-using Utilities;
 using System.Linq;
 using System.Collections.Generic;
-using System.Xml.Serialization;
-using System.IO;
-using System.Text;
 
 namespace Evacuation
 {
@@ -19,29 +15,8 @@ namespace Evacuation
 	{
 		public string Pod = "";
 		public Hypervisor SourceHyp;
-		public List<Hypervisor> DestHyps = new List<Hypervisor>();
-
-		private List<Hypervisor> srcHyps
-        {
-            get{
-                return ((HypTable.DataSource)tblSourceHyp.DataSource).Hyps;
-            }
-            set{
-                ((HypTable.DataSource)tblSourceHyp.DataSource).Hyps = value;
-            }
-        }
-
-		private List<Hypervisor> dstHyps
-		{
-			get
-			{
-				return ((HypTable.DataSource)tblDestinationHyps.DataSource).Hyps;
-			}
-			set
-			{
-				((HypTable.DataSource)tblDestinationHyps.DataSource).Hyps = value;
-			}
-		}
+        List<Hypervisor> SrcHyps => ((HypTable.DataSource)tblSourceHyp.DataSource).Hyps;
+        List<Hypervisor> DstHyps => ((HypTable.DataSource)tblDestinationHyps.DataSource).Hyps;
 
         HypTable.DataSource hypDS = new HypTable.DataSource();
 
@@ -59,19 +34,18 @@ namespace Evacuation
 
 			tblDestinationHyps.DataSource = new HypTable.DataSource();
 			tblDestinationHyps.Delegate = new HypTable.Delegate((HypTable.DataSource)tblDestinationHyps.DataSource);
-        }
+			new Thread(() => FindHyps()).Start();
 
-        public override void ViewDidAppear(){
-            new Thread(() => FindHyps()).Start();
 		}
 
         partial void SourceHypClick(NSObject sender)
         {
-            dstHyps.Clear();
+            DstHyps.Clear();
             if (tblSourceHyp.SelectedRow >= 0) {
-                SourceHyp = srcHyps[(int)tblSourceHyp.SelectedRow];
+                SourceHyp = SrcHyps[(int)tblSourceHyp.SelectedRow];
                 var CPU = SourceHyp.CpuVersion;
-                dstHyps = srcHyps.Where(x => x.CpuVersion == CPU && x.HostName != SourceHyp.HostName).ToList();
+                DstHyps.Clear();
+                DstHyps.AddRange(SrcHyps.Where(x => x.CpuVersion == CPU && x.HostName != SourceHyp.HostName).ToList());
             }
             tblDestinationHyps.ReloadData();
             tblDestinationHyps.SelectAll(this);
@@ -104,11 +78,18 @@ namespace Evacuation
                           var hyp = new Hypervisor() { HostName = hostName, SearchArea = searchArea };
 						  this.BeginInvokeOnMainThread(() =>
 						  {
-							  srcHyps.Add(hyp);
-							  srcHyps.Sort();
+							  SrcHyps.Add(hyp);
+							  SrcHyps.Sort();
 							  tblSourceHyp.ReloadData();
 						  });
-                          hyp.Load();
+                          try
+                          {
+							  hyp.Load();
+						  }
+                          catch
+                          {
+
+                          }
                           this.BeginInvokeOnMainThread(() =>
 						  {
 							  tblSourceHyp.ReloadData();
@@ -117,6 +98,11 @@ namespace Evacuation
 				  });
 			this.BeginInvokeOnMainThread(() =>
 			{
+                var tmpHyps = SrcHyps.Where(x => x.ActiveSession).ToList();
+                SrcHyps.Clear();
+                SrcHyps.AddRange(tmpHyps);
+                
+                tblSourceHyp.ReloadData();
 				tblSourceHyp.Enabled = true;
 				this.View.Window.Title = "Select Hyps";
 			});
@@ -124,11 +110,9 @@ namespace Evacuation
 
         partial void cmdShowAllDest(NSObject sender)
         {
-            var src = ((HypTable.DataSource)tblSourceHyp.DataSource).Hyps;
-            var dst = ((HypTable.DataSource)tblDestinationHyps.DataSource).Hyps;
-            dst.Clear();
-            dst.AddRange(src);
-            dst.Sort();
+            DstHyps.Clear();
+            DstHyps.AddRange(SrcHyps);
+            DstHyps.Sort();
             tblDestinationHyps.ReloadData();
         }
 
@@ -140,11 +124,9 @@ namespace Evacuation
 			switch (segue.Identifier)
 			{
 				case "ViewEvacuate":
-					DestHyps.Clear();
-					var hypsDs = (HypTable.DataSource)tblDestinationHyps.DataSource;
-					foreach (var item in tblDestinationHyps.SelectedRows) DestHyps.Add(hypsDs.Hyps[(int)item]);
-					NSWindowController wind = (NSWindowController)this.View.Window.WindowController;
-					wind.Close();
+					List<Hypervisor> DestHyps = new List<Hypervisor>();
+					foreach (var item in tblDestinationHyps.SelectedRows) DestHyps.Add(DstHyps[(int)item]);
+                    ((NSWindowController)this.View.Window.WindowController).Close();
                     var dest = (viewMoving)segue.DestinationController;
                     dest.Pod = Pod;
                     dest.SourceHyp = SourceHyp;
@@ -152,5 +134,16 @@ namespace Evacuation
 					break;
 			}
 		}
+
+
+		partial void cmdLaunchConsole(NSObject sender)
+		{
+            SourceHyp.OpenIdrac();
+		}
+
+        partial void cmdCopyMoob(NSObject sender)
+        {
+            SourceHyp.LaunchMoobConsole();
+        }
 	}
 }

@@ -1,46 +1,23 @@
 ﻿using XenAPI;
-using Utilities;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
 namespace Evacuation
 {
 	public class VirtualMachine
-	{
-        string _name = "";
-		public long Cores { get; set; }
-		public long Memory { get; set; }
-		public string State { get; set; } = "";
-		public string HostGroup { get; set; } = "";
-        public string HostNumber { get; set; } = "";
-        public List<XenRef<VIF>> VIFs;
-        public string UUID { get; set; } = "";
-        public List<NetworkInfo> Networks = new List<NetworkInfo>();
+    {
+		Regex rgx = new Regex(@"\d+$");
 
-		public VirtualMachine(VM vm)
-		{
-			Name = vm.name_label;
-			Cores = vm.VCPUs_max;
-			Memory = vm.memory_static_max.KbToGb();
-			State = vm.power_state.ToString();
-            UUID = vm.uuid;
-            VIFs = vm.VIFs;
-		}
-
-		public string Name
-		{
-			get
-			{
-				return _name;
-			}
-			set
-			{
-				_name = value;
-				Regex rgx = new Regex(@"\d+$");
-				HostGroup = rgx.Replace(value.Split('.')[0], "");
-                HostNumber = value.Split('.')[0].Replace(HostGroup, "");
-			}
-		}
+		public VM Vm;
+        public long Cores => (Vm == null) ? 0 : Vm.VCPUs_max;     
+        public long Memory => (Vm == null) ? 0 : Vm.memory_static_max.KbToGb();
+        public string State => (Vm == null) ? "" : Vm.power_state.ToString();
+        public  List<XenRef<VIF>> VIFs => (Vm == null) ? new List<XenRef<VIF>>() : Vm.VIFs;
+        public string UUID => (Vm == null) ? "" : Vm.uuid;
+		public List<NetworkInfo> Networks = new List<NetworkInfo>();
+        public string Name => (Vm == null) ? "" : Vm.name_label;
+		public string HostGroup => (Name == "") ? "" : rgx.Replace(Name.Split('.')[0], "");
+		public string HostNumber => (Name == "") ? "" : Name.Split('.')[0].Replace(HostGroup, "");
 	}
 
     public class NetworkInfo
