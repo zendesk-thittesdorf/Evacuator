@@ -182,34 +182,6 @@ namespace Evacuation
                     }
                     RefreshData();
                 });
-
-                //    MoveQueue = new Queue<VirtualMachine>(SourceHyp.Vms);
-
-                //    while (MoveQueue.Any())
-                //    {
-                //        if (PauseQueue) lblStatus.Set("Paused...");
-                //        while (PauseQueue) { Thread.Sleep(2000); }
-                //        try
-                //        {
-                //            var curVm = MoveQueue.Dequeue();
-                //            var dstHyp = ChooseDest(curVm);
-                //            lblStatus.Set("Moving " + curVm.Name + " to " + dstHyp.HostName + " - Queue Length = " + MoveQueue.Count());
-                //            prgMove.Hide(false);
-                //            var mover = new HypMover() { SourceHyp = SourceHyp.HostName, DestHyp = dstHyp.HostName, VMUUID = curVm.UUID };
-                //            foreach (var netInfo in curVm.Networks) mover.VIFtoDstNetwork.Add(netInfo.VifUUID, dstHyp.NetworkByVlan[netInfo.VlanID]);
-                //            mover.MoveVM();
-                //        }
-                //        catch
-                //        {
-                //            prgMove.Hide();
-                //            lblStatus.Set("Something went boom during that move attempt...");
-                //            Thread.Sleep(5000);
-                //        }
-
-                //        prgMove.Hide();
-                //        lblStatus.Set("Refreshing Hypervisor/VM Info...");
-                //        RefreshData();
-                //    }
             }
             prgMove.Hide();
             lblStatus.Set("Work completed!");
