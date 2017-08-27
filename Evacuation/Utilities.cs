@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Linq;
-using System.Reflection;
 using System.Diagnostics;
 
 namespace Evacuation
@@ -79,25 +78,25 @@ namespace Evacuation
             if (item.Trim() != "") list.Add(item);
         }
 
-        // Save String to File on the Desktop
-        public static void WriteAscii(this string Contents, string FileName)
-        {
-            Write(FileName, Contents, Encoding.ASCII);
-        }
+		// Save String to File on the Desktop
+		public static void WriteAscii(this string Contents, string FileName)
+		{
+			Write(FileName, Contents, Encoding.ASCII);
+		}
 
-        public static void WriteUnicode(this string Contents, string FileName)
-        {
+		public static void WriteUnicode(this string Contents, string FileName)
+		{
             Write(FileName, Contents, Encoding.Unicode);
-        }
+		}
 
-        private static void Write(string FileName, string Contents, Encoding enc)
-        {
+		private static void Write(string FileName, string Contents, Encoding enc)
+		{
             FileName = string.Format(FileName, DateTime.Now);
-            using (StreamWriter outputFile = new StreamWriter(new FileStream(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "/" + FileName, FileMode.OpenOrCreate, FileAccess.ReadWrite), enc))
-            {
-                outputFile.Write(Contents);
-            }
-        }
+			using (StreamWriter outputFile = new StreamWriter(new FileStream(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "/" + FileName, FileMode.OpenOrCreate, FileAccess.ReadWrite), enc))
+			{
+				outputFile.Write(Contents);
+			}
+		}
 
         // Set Hidden for NSButton
         public static void Hide(this NSButton obj, bool hidden = true)
@@ -138,7 +137,7 @@ namespace Evacuation
         }
 
         // Open the iDrac login page in Safari for the givin hyp
-		public static void OpenIdrac(this Evacuation.Hypervisor hyp)
+		public static void OpenIdrac(this Hypervisor hyp)
 		{
 			var host = hyp.HostName.Split('.').First();
 			var idrac = host + "-idrac" + hyp.HostName.Replace(host, "");
@@ -148,7 +147,8 @@ namespace Evacuation
         // Run a bash command
 		public static void ExecuteCommand(string command)
 		{
-            new System.Threading.Thread(() => {
+			new System.Threading.Thread(() =>
+			{
 				Process proc = new Process();
 				proc.StartInfo.FileName = "/bin/bash";
 				proc.StartInfo.Arguments = "-c \" " + command + " \"";
@@ -164,16 +164,16 @@ namespace Evacuation
 
 		}
 
-        // Launch the iDrac Java Console
-		public static void LaunchMoobConsole(this Evacuation.Hypervisor hyp)
+		// Launch the iDrac Java Console
+		public static void LaunchMoobConsole(this Hypervisor hyp)
 		{
 			var host = hyp.HostName.Split('.').First();
 			var idrac = host + "-idrac" + hyp.HostName.Replace(host, "");
-            string toPasteboard = "source ~/.profile; moob -vm '" + idrac + "' -t auto -u zdops -p " + Evacuation.Models.Password.ToString();
-            ExecuteCommand(toPasteboard);
-        }
+            string toPasteboard = "source ~/.profile; moob -vm '" + idrac + "' -t auto -u zdops -p " + Evacuation.Models.DracPassword.ToString();
+			ExecuteCommand(toPasteboard);
+		}
 
-        // Try a function for assignment or return default
+		// Try a function for assignment or return default
 		public static T2 TryOrDefault<T1, T2>(Func<T2> p, T2 v)
 		{
 			try

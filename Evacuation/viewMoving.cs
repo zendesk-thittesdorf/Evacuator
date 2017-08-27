@@ -25,8 +25,6 @@ namespace Evacuation
         HypTable.DataSource hypDS = new HypTable.DataSource();
         VmTable.DataSource vmDS = new VmTable.DataSource();
 
-        private Queue<VirtualMachine> MoveQueue = new Queue<VirtualMachine>();
-
         public viewMoving(IntPtr handle) : base(handle)
         {
         }
@@ -116,11 +114,6 @@ namespace Evacuation
             prgMove.Range(0, 1);
             while (Moving)
             {
-                //prgMove.Set(SourceHyp.GetProgress());
-                //int TaskCount;
-                //prgMove.Set(SourceHyp.GetProgress(out TaskCount));
-                //lblStatus.Set("Moves in progress: " + TaskCount);
-
                 var tasks = SourceHyp.GetProgress();
 
                 if (tasks.Count > 0)
@@ -163,25 +156,44 @@ namespace Evacuation
         {
             while (SourceHyp.Vms.Count > 0)
             {
-                lblStatus.Set("Queueing work... " + vmDS.Vms.Count() + " vms");
-                var multiMove = new List<VirtualMachine>(SourceHyp.Vms);
-                Parallel.ForEach(multiMove, new ParallelOptions { MaxDegreeOfParallelism = 3 }, curVm =>
+                try
                 {
-                    while (PauseQueue) { Thread.Sleep(2000); }
-                    try
-                    {
-                        var dstHyp = ChooseDest(curVm);
-                        prgMove.Hide(false);
-                        var mover = new HypMover() { SourceHyp = SourceHyp.HostName, DestHyp = dstHyp.HostName, VMUUID = curVm.UUID };
-                        foreach (var netInfo in curVm.Networks) mover.VIFtoDstNetwork.Add(netInfo.VifUUID, dstHyp.NetworkByVlan[netInfo.VlanID]);
-                        mover.MoveVM();
-                    }
-                    catch
-                    {
+					List<string> movingHostgroups = new List<string>();
+					lblStatus.Set("Queueing work... " + vmDS.Vms.Count() + " vms");
+					var multiMove = new List<VirtualMachine>(SourceHyp.Vms);
+					Parallel.ForEach(multiMove, new ParallelOptions { MaxDegreeOfParallelism = 3 }, curVm =>
+					{
+						while (PauseQueue) { Thread.Sleep(2000); }
+						bool hgSingle = false;
+						lock (movingHostgroups)
+						{
+							hgSingle = !(movingHostgroups.Contains(curVm.HostGroup));
+							if (hgSingle) movingHostgroups.Add(curVm.HostGroup);
+						}
+						if (hgSingle)
+						{
+							try
+							{
+								var dstHyp = ChooseDest(curVm);
+								prgMove.Hide(false);
+								var mover = new HypMover() { SourceHyp = SourceHyp.HostName, DestHyp = dstHyp.HostName, VMUUID = curVm.UUID };
+								foreach (var netInfo in curVm.Networks) mover.VIFtoDstNetwork.Add(netInfo.VifUUID, dstHyp.NetworkByVlan[netInfo.VlanID]);
+								mover.MoveVM();
+							}
+							catch
+							{
 
-                    }
-                    RefreshData();
-                });
+							}
+							movingHostgroups.Remove(curVm.HostGroup);
+						}
+						RefreshData();
+					});
+                }
+                catch (Exception ex)
+                {
+
+                }
+
             }
             prgMove.Hide();
             lblStatus.Set("Work completed!");
@@ -198,8 +210,7 @@ namespace Evacuation
             switch (segue.Identifier)
             {
                 case "ReturnSelectHyp":
-                    var dest = (viewSelectHyp)segue.DestinationController;
-                    dest.Pod = Pod;
+                    ((viewSelectHyp)segue.DestinationController).Pod = Pod;
                     ((NSWindowController)this.View.Window.WindowController).Close();
                     break;
             }
@@ -213,19 +224,27 @@ namespace Evacuation
 
         partial void cmdPatchHost(NSObject sender)
         {
-            new Thread(() => PatchHyp()).Start();
-        }
-
-        private void PatchHyp()
-        {
-            var patches = Patch.LoadPatches(SourceHyp);
-            foreach (var patch in patches)
+            lblStatus.Set("Checking for patches...");
+            new Thread(() =>
             {
-                lblStatus.Set("Applying " + patch.Namelabel + " to " + SourceHyp.HostName);
-                prgMove.Hide();
-                Patch.ApplyPatch(patch, SourceHyp);
-            }
-            lblStatus.Set("Patch Attempt Finished");
+                var patches = Patch.LoadPatches(SourceHyp);
+                try
+                {
+					foreach (var patch in patches)
+					{
+						lblStatus.Set("Applying " + patch.Namelabel + " to " + SourceHyp.HostName);
+						prgMove.Hide();
+						Patch.ApplyPatch(patch, SourceHyp);
+					}
+					lblStatus.Set("Patch Attempt Finished");
+				}
+                catch (Exception e)
+                {
+                    lblStatus.Set("Patch Attempt Failed");
+                    System.Diagnostics.Debug.WriteLine(e.ToString());
+                }
+
+            }).Start();
         }
 
         partial void cmdLaunchConsole(NSObject sender)

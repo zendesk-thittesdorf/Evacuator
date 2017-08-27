@@ -1594,21 +1594,21 @@
                         <rect key="frame" x="0.0" y="0.0" width="574" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="4tN-Dc-BD6">
-                                <rect key="frame" x="20" y="20" width="421" height="260"/>
+                            <scrollView misplaced="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="4tN-Dc-BD6">
+                                <rect key="frame" x="20" y="20" width="393" height="260"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <clipView key="contentView" id="w6k-X2-Ne0">
-                                    <rect key="frame" x="1" y="0.0" width="419" height="259"/>
+                                    <rect key="frame" x="1" y="0.0" width="391" height="259"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" rowSizeStyle="automatic" headerView="i8s-1Q-OcA" viewBased="YES" id="oin-0h-kPA" userLabel="Pod Select Table">
-                                            <rect key="frame" x="0.0" y="0.0" width="419" height="236"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="391" height="236"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                             <tableColumns>
-                                                <tableColumn width="416" minWidth="40" maxWidth="1000" id="Ayv-Qq-2uR">
+                                                <tableColumn width="388" minWidth="40" maxWidth="1000" id="Ayv-Qq-2uR">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Pod Search Area">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -1622,11 +1622,11 @@
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="nPf-Jh-rvB">
-                                                            <rect key="frame" x="1" y="1" width="416" height="17"/>
+                                                            <rect key="frame" x="1" y="1" width="388" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsCharacterPickerTouchBarItem="NO" id="ouR-ni-KzI">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="416" height="17"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="388" height="17"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="Yba-dV-r7L">
                                                                         <font key="font" metaFont="system"/>
@@ -1649,7 +1649,7 @@
                                     </subviews>
                                 </clipView>
                                 <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="A1n-ah-k3u">
-                                    <rect key="frame" x="1" y="8" width="0.0" height="15"/>
+                                    <rect key="frame" x="1" y="243" width="373" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="B26-te-vKA">
@@ -1657,12 +1657,12 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" id="i8s-1Q-OcA">
-                                    <rect key="frame" x="0.0" y="0.0" width="419" height="23"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="391" height="23"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
-                            <button verticalHuggingPriority="750" id="ULw-9q-4LR">
-                                <rect key="frame" x="443" y="13" width="117" height="32"/>
+                            <button verticalHuggingPriority="750" misplaced="YES" id="ULw-9q-4LR">
+                                <rect key="frame" x="415" y="13" width="145" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                 <buttonCell key="cell" type="push" title="Load Pod" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="gT3-fs-lEh">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1673,10 +1673,10 @@
                                     <segue destination="L2n-jX-IK2" kind="show" identifier="ViewSelectHyp" id="GV2-pn-j0R"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" id="Qy9-Mk-4Bp">
-                                <rect key="frame" x="443" y="46" width="117" height="32"/>
+                            <button verticalHuggingPriority="750" misplaced="YES" id="Qy9-Mk-4Bp">
+                                <rect key="frame" x="415" y="46" width="145" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                                <buttonCell key="cell" type="push" title="Update Pass" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="F5P-oJ-P9m">
+                                <buttonCell key="cell" type="push" title="Update Xen Pass" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="F5P-oJ-P9m">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
@@ -1684,9 +1684,21 @@
                                     <action selector="cmdSetPass:" target="hoB-Ez-3NO" id="tks-Bv-VXs"/>
                                 </connections>
                             </button>
+                            <button verticalHuggingPriority="750" misplaced="YES" id="fYG-d9-3hJ">
+                                <rect key="frame" x="415" y="79" width="145" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                                <buttonCell key="cell" type="push" title="Update Drac Pass" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cnM-r8-9pL">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="cmdSetDracPass:" target="hoB-Ez-3NO" id="Qat-PS-Pbe"/>
+                                </connections>
+                            </button>
                         </subviews>
                     </view>
                     <connections>
+                        <outlet property="SetDracPassButton" destination="fYG-d9-3hJ" id="goE-tB-uvH"/>
                         <outlet property="SetPassButton" destination="Qy9-Mk-4Bp" id="J1V-6e-sEg"/>
                         <outlet property="btnLoadPod" destination="ULw-9q-4LR" id="Cve-xU-6A2"/>
                         <outlet property="tblPods" destination="oin-0h-kPA" id="g78-39-NSK"/>
@@ -1698,6 +1710,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="vbU-wD-rOa"/>
+        <segue reference="GV2-pn-j0R"/>
     </inferredMetricsTieBreakers>
 </document>

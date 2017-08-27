@@ -2,7 +2,7 @@
 #include <xamarin/xamarin.h>
 #import <AppKit/NSAlert.h>
 #import <Foundation/NSDate.h>
-extern int xamarin_create_classes_Xamarin_Mac ();
+extern "C" void xamarin_create_classes_Xamarin_Mac ();
 
 
 

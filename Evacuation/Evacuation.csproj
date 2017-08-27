@@ -118,6 +118,7 @@
     <Compile Include="VmTable\Delegate.cs" />
     <Compile Include="Patch.cs" />
     <Compile Include="Utilities.cs" />
+    <Compile Include="Models\DracPassword.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />

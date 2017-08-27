@@ -1,1 +1,38 @@
-2017-07-27 15:12:18.154 Evacuation[18942:556269] Failed to connect (cmdEvacuateOutlet) outlet from (viewSelectHyp) to (NSButtonCell): missing setter or instance variable
+2017-08-27 08:25:41.576 Evacuation[61185:3774739] Failed to connect (cmdEvacuateOutlet) outlet from (viewSelectHyp) to (NSButtonCell): missing setter or instance variable
+2017-08-27 08:28:29.517 Evacuation[61185:3774739] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
+2017-08-27 08:28:29.517 Evacuation[61185:3774739] Could not connect action, target class viewMoving does not respond to -tblSourceVms:
+2017-08-27 08:28:44.606 Evacuation[61185:3774739] Could not connect action, target class viewMoving does not respond to -tblDestinationHyps:
+2017-08-27 08:28:44.606 Evacuation[61185:3774739] Could not connect action, target class viewMoving does not respond to -tblSourceVms:
+2017-08-27 08:31:17.750 Evacuation[61185:3774739] IMKInputSession presentFunctionRowItemTextInputViewWithEndpoint:completionHandler: : [self textInputContext]=0x0 *NO* NSRemoteViewController to client, NSError=Error Domain=NSCocoaErrorDomain Code=4099 "The connection from pid 0 was invalidated from this process." UserInfo={NSDebugDescription=The connection from pid 0 was invalidated from this process.}, com.apple.inputmethod.EmojiFunctionRowItem
+[36mTrying type idrac8...[0m
+[36mTrying type idrac8...[0m
+[36mType idrac8 detected.[0m
+[36mTrying to authenticate to hyp5-idrac.pod3.dub1.zdsys.com...[0m
+[36mTrying type idrac7...[0m
+[36mRequesting indexurl of index.html?ST1=bccb3d784e385b7111978b205ea3700d,ST2=a18b611d25e0db46e8f98738255f59a3[0m
+[36mAuthenticated on hyp5-idrac.pod3.dub1.zdsys.com.[0m
+[36mTrying to perform jnlp on hyp5-idrac.pod3.dub1.zdsys.com...[0m
+[36mRequesting data?get=sysDesc,hostname[0m
+[36mType idrac7 detected.[0m
+[36mTrying to authenticate to hyp7-idrac.pod3.dub1.zdsys.com...[0m
+objc[65856]: Class JavaLaunchHelper is implemented in both /Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/bin/java (0x10b9a94c0) and /Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/lib/jli/./libjli.dylib (0x12ab13480). One of the two will be used. Which one is undefined.
+[36mRequesting indexurl of index.html?ST1=4e0216e3db495effe11b854fa99ba61f,ST2=a9505a30b061d1cf73b346578516d0b9[0m
+[36mAuthenticated on hyp7-idrac.pod3.dub1.zdsys.com.[0m
+[36mTrying to perform jnlp on hyp7-idrac.pod3.dub1.zdsys.com...[0m
+[36mRequesting data?get=sysDesc,hostname[0m
+objc[65877]: Class JavaLaunchHelper is implemented in both /Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/bin/java (0x1034b74c0) and /Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/lib/jli/./libjli.dylib (0x122621480). One of the two will be used. Which one is undefined.
+2017-08-27 08:43:03.681 java[65856:3798247] IMKInputSession presentFunctionRowItemTextInputViewWithEndpoint:completionHandler: : [self textInputContext]=0x0 *NO* NSRemoteViewController to client, NSError=Error Domain=NSCocoaErrorDomain Code=4099 "The connection from pid 0 was invalidated from this process." UserInfo={NSDebugDescription=The connection from pid 0 was invalidated from this process.}, com.apple.inputmethod.EmojiFunctionRowItem
+[36mPerformed jnlp on hyp5-idrac.pod3.dub1.zdsys.com.[0m
+[31mFailure: Patron::HostResolutionError (Could not resolve host: hyp5-idrac.pod3.dub1.zdsys.com)[0m
+
+Backtrace to provide in any support request:[2;34m
+/Users/thittesdorf/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/patron-0.8.0/lib/patron/session.rb:328:in `handle_request'
+/Users/thittesdorf/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/patron-0.8.0/lib/patron/session.rb:328:in `request'
+/Users/thittesdorf/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/patron-0.8.0/lib/patron/session.rb:186:in `get'
+/Users/thittesdorf/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/moob-0.5.0/lib/moob/idrac8.rb:95:in `logout'
+/Users/thittesdorf/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/moob-0.5.0/bin/moob:128:in `block in <top (required)>'
+/Users/thittesdorf/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/moob-0.5.0/bin/moob:98:in `each'
+/Users/thittesdorf/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/moob-0.5.0/bin/moob:98:in `<top (required)>'
+/Users/thittesdorf/.rbenv/versions/2.2.3/bin/moob:23:in `load'
+/Users/thittesdorf/.rbenv/versions/2.2.3/bin/moob:23:in `<main>'
+[0m

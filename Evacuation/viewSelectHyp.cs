@@ -126,7 +126,7 @@ namespace Evacuation
 				case "ViewEvacuate":
 					List<Hypervisor> DestHyps = new List<Hypervisor>();
 					foreach (var item in tblDestinationHyps.SelectedRows) DestHyps.Add(DstHyps[(int)item]);
-                    ((NSWindowController)this.View.Window.WindowController).Close();
+                    //((NSWindowController)this.View.Window.WindowController).Close();
                     var dest = (viewMoving)segue.DestinationController;
                     dest.Pod = Pod;
                     dest.SourceHyp = SourceHyp;

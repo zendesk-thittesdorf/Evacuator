@@ -1,6 +1,7 @@
 ﻿using XenAPI;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Evacuation
 {
@@ -25,4 +26,11 @@ namespace Evacuation
         public long VlanID { get; set; } = -1;
         public string VifUUID { get; set; } = "";
     }
+
+	public class VirtualMachineDisk
+	{
+		public string Name = "";
+		public int PhysicalSize = 0;
+		public int VirtualSize = 0;
+	}
 }

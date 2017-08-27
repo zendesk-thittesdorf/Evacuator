@@ -1,11 +1,11 @@
-# Version: 3.4.0.36 (d15-2: d2270eec)
-# [first argument, ignore] # /Library/Frameworks/Xamarin.Mac.framework/Versions/3.4.0.36/lib/mmp/mmp.exe
-/Library/Frameworks/Xamarin.Mac.framework/Versions/3.4.0.36/lib/mmp/mmp.exe \
+# Version: 3.6.0.19 (d15-3: 80b8487d)
+# [first argument, ignore] # /Library/Frameworks/Xamarin.Mac.framework/Versions/3.6.0.19/lib/mmp/mmp.exe
+/Library/Frameworks/Xamarin.Mac.framework/Versions/3.6.0.19/lib/mmp/mmp.exe \
 	/verbose \
 	/debug \
 	/output:/Users/thittesdorf/Projects/Evacuation/Evacuation/bin/Debug/ \
 	/name:Evacuation \
-	/profile:4.5 \
+	/profile:Xamarin.Mac,Version=v4.5,Profile=Full \
 	/arch:x86_64 \
 	--http-message-handler=HttpClientHandler \
 	/minos=10.11 \

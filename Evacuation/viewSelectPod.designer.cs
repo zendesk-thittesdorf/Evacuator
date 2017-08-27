@@ -9,43 +9,54 @@ using System.CodeDom.Compiler;
 
 namespace Evacuation
 {
-    [Register ("viewSelectPod")]
-    partial class viewSelectPod
-    {
-        [Outlet]
-        AppKit.NSButton btnLoadPod { get; set; }
+	[Register ("viewSelectPod")]
+	partial class viewSelectPod
+	{
+		[Outlet]
+		AppKit.NSButton btnLoadPod { get; set; }
 
-        [Outlet]
-        AppKit.NSButton SetPassButton { get; set; }
+		[Outlet]
+		AppKit.NSButton SetDracPassButton { get; set; }
 
-        [Outlet]
-        AppKit.NSTableView tblPods { get; set; }
+		[Outlet]
+		AppKit.NSButton SetPassButton { get; set; }
 
-        [Action ("cmdLoadPod:")]
-        partial void cmdLoadPod (Foundation.NSObject sender);
+		[Outlet]
+		AppKit.NSTableView tblPods { get; set; }
 
-        [Action ("cmdSetPass:")]
-        partial void cmdSetPass (Foundation.NSObject sender);
+		[Action ("cmdLoadPod:")]
+		partial void cmdLoadPod (Foundation.NSObject sender);
 
-        [Action ("SelectPodClick:")]
-        partial void SelectPodClick (Foundation.NSObject sender);
-        
-        void ReleaseDesignerOutlets ()
-        {
-            if (btnLoadPod != null) {
-                btnLoadPod.Dispose ();
-                btnLoadPod = null;
-            }
+		[Action ("cmdSetDracPass:")]
+		partial void cmdSetDracPass (Foundation.NSObject sender);
 
-            if (tblPods != null) {
-                tblPods.Dispose ();
-                tblPods = null;
-            }
+		[Action ("cmdSetPass:")]
+		partial void cmdSetPass (Foundation.NSObject sender);
 
-            if (SetPassButton != null) {
-                SetPassButton.Dispose ();
-                SetPassButton = null;
-            }
-        }
-    }
+		[Action ("SelectPodClick:")]
+		partial void SelectPodClick (Foundation.NSObject sender);
+		
+		void ReleaseDesignerOutlets ()
+		{
+			if (btnLoadPod != null) {
+				btnLoadPod.Dispose ();
+				btnLoadPod = null;
+			}
+
+			if (SetPassButton != null) {
+				SetPassButton.Dispose ();
+				SetPassButton = null;
+			}
+
+			if (SetDracPassButton != null) {
+				SetDracPassButton.Dispose ();
+				SetDracPassButton = null;
+			}
+
+			if (tblPods != null) {
+				tblPods.Dispose ();
+				tblPods = null;
+			}
+		}
+	}
 }

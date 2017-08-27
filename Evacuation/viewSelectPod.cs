@@ -62,10 +62,27 @@ namespace Evacuation
             UpdateSetPassButton();
 		}
 
+        partial void cmdSetDracPass(NSObject sender)
+        {
+			NSSecureTextField input = new NSSecureTextField(new CoreGraphics.CGRect(0, 0, 200, 24));
+
+			NSAlert alert = new NSAlert()
+			{
+				AlertStyle = NSAlertStyle.Informational,
+				InformativeText = "Leave empty to clear.",
+				MessageText = "Update Password",
+				AccessoryView = input
+			};
+			alert.RunModal();
+			Models.DracPassword.Save(input.StringValue);
+			UpdateSetPassButton();
+		}
+
         private void UpdateSetPassButton()
         {
-            SetPassButton.Title = (Models.Password.ToString() == "") ? "Set Pass" : "Update Pass";
-        }
+            SetPassButton.Title = (Models.Password.ToString() == "") ? "Set Xen Pass" : "Update Xen Pass";
+			SetDracPassButton.Title = (Models.DracPassword.ToString() == "") ? "Set Drac Pass" : "Update Drac Pass";
+		}
 
 		public override void PrepareForSegue(NSStoryboardSegue segue, NSObject sender)
 		{

@@ -21,6 +21,7 @@ namespace Evacuation
         public string XenVersion { get; set; } = "";
         public long Cores { get; set; }
         public long CoresAllocated { get; set; }
+		public long CoresRemaining => Cores - CoresAllocated;
         public long Memory { get; set; } // gb
         public long MemoryAllocated { get; set; } // gb
         public long MemoryFree { get; set; } // gb
@@ -31,7 +32,6 @@ namespace Evacuation
         public double DiskSize { get; set; }
         public double DiskFree => DiskSize - DiskUsed;
         public string VolumeTypes { get; set; } = "";
-        public int CurMovesToMe = 0;
 		public long PatchCount { get; set; } = 0;
 		public string SortPod => (Pod == 0) ? HostName.Split('.')[1] : Pod.ToString("000");
 		public string SortHost => Host.ToString("000");
@@ -40,21 +40,12 @@ namespace Evacuation
         public int Pod => (HostNameAt(1).Contains("pod")) ? int.Parse(HostNameAt(1).Replace("pod", "")) : 0;
         public string DC => (HostNameAt(1).Contains("pod")) ? HostNameAt(2) : HostNameAt(1);
         public bool ActiveSession => session != null;
-        public long CoresRemaining => Cores - CoresAllocated;
-
-        public string CpuVersion => Utilities.TryOrDefault<string, string>(() => {
-			var tmp = CpuModel.Substring(CpuModel.IndexOf(' ') + 1);
-			return tmp.Substring(0, tmp.IndexOf(' '));
-		}, "");
-
-        public int GetHostgroupCount(string HostGroup) => Utilities.TryOrDefault<int, int>(() => Vms.Where(x => x.HostGroup == HostGroup).Count(), 0);
-
-
+        public long Dom0Memory = 0;
+		public List<VDI> vdisUnmanaged;
         public List<long> Vlans { get; set; } = new List<long>();
-
-		private Dictionary<XenRef<Network>, PIF> PifByNetwork = new Dictionary<XenRef<Network>, PIF>();
+		Dictionary<XenRef<Network>, PIF> PifByNetwork = new Dictionary<XenRef<Network>, PIF>();
 		public Dictionary<long, string> NetworkByVlan = new Dictionary<long, string>(); //Vlan,NetworkUUID
-        private Dictionary<XenRef<Network>, Network> Networks = new Dictionary<XenRef<Network>, Network>();
+        Dictionary<XenRef<Network>, Network> Networks = new Dictionary<XenRef<Network>, Network>();
 
 
         Session session;
@@ -71,7 +62,15 @@ namespace Evacuation
 			}		
         }
 
-        void LoadSession()
+		public string CpuVersion => Utilities.TryOrDefault<string, string>(() =>
+		{
+			var tmp = CpuModel.Substring(CpuModel.IndexOf(' ') + 1);
+			return tmp.Substring(0, tmp.IndexOf(' '));
+		}, "");
+
+		public int GetHostgroupCount(string HostGroup) => Utilities.TryOrDefault<int, int>(() => Vms.Where(x => x.HostGroup == HostGroup).Count(), 0);
+
+		void LoadSession()
         {
             if (session == null)
             {
@@ -157,61 +156,55 @@ namespace Evacuation
 			}
         }
 
-        private void LoadNetwork()
+        void LoadNetwork()
         {
             Networks = Network.get_all_records(session);
         }
 
-        private void LoadVIF()
+        void LoadVIF()
         {
             var vifs = VIF.get_all_records(session);
             foreach (var vm in Vms)
             {
                 vm.Networks.Clear();
-                foreach (var vif in vm.VIFs)
+                foreach (var vif in vm.VIFs.Where(x => vifs.ContainsKey(x)))
                 {
-                    if (vifs.ContainsKey(vif))
-                    {
-                        var Vlan= (PifByNetwork.ContainsKey(vifs[vif].network)) ? PifByNetwork[vifs[vif].network].VLAN : -1;
-
-                        vm.Networks.Add(new NetworkInfo { VifUUID = vifs[vif].uuid,
-                        VlanID = Vlan});
-                    }
+                    var Vlan= (PifByNetwork.ContainsKey(vifs[vif].network)) ? PifByNetwork[vifs[vif].network].VLAN : -1;
+                    vm.Networks.Add(new NetworkInfo { VifUUID = vifs[vif].uuid,
+                    VlanID = Vlan});
                 }
             }
         }
 
-        public void LoadPIFByNetwork()
+        void LoadPIFByNetwork()
         {
-            PifByNetwork = PIF.get_all_records(session).ToDictionary(p=> p.Value.network, p=> p.Value);
+            PifByNetwork = PIF.get_all_records(session)
+                              .ToDictionary(p=> p.Value.network, p=> p.Value);
         }
 
-		public void LoadNetworkByVlan()
+		void LoadNetworkByVlan()
 		{
-            var pifs = PIF.get_all_records(session).Select(p => p.Value).Where(p => p.VLAN != -1).ToList();
-            NetworkByVlan.Clear();
-            foreach (var pif in pifs)
-            {
-                if (Networks.ContainsKey(pif.network))
-                {
-                    NetworkByVlan.Add(pif.VLAN, Networks[pif.network].uuid);
-                }
-            }
+            NetworkByVlan = PIF.get_all_records(session)
+				.Select(p => p.Value)
+				.Where(p => p.VLAN != -1)
+                .ToList()
+				.Where(x => Networks.ContainsKey(x.network))
+				.ToDictionary(x => x.VLAN, x => Networks[x.network].uuid);
 		}
 
-        private void LoadHypInfo()
+        void LoadHypInfo()
         {
             // Load Host Info
             Host host = XenAPI.Host.get_all_records(session).Last().Value;
-            // Load Host Metrics
-            Host_metrics metrics = Host_metrics.get_record(session, host.metrics);
-            if (metrics != null)
-            {
-                Memory = metrics.memory_total.KbToGb();
-                MemoryFree = metrics.memory_free.KbToGb();
-            }
             if (host != null)
             {
+				// Load Host Metrics
+				Host_metrics metrics = Host_metrics.get_record(session, host.metrics);
+				if (metrics != null)
+				{
+					Memory = metrics.memory_total.KbToGb();
+					MemoryFree = metrics.memory_free.KbToGb();
+				}
                 var cpus = host.cpu_info;
                 Cores = long.Parse(cpus["cpu_count"]);
                 CpuModel = Trimmer.Replace(cpus["modelname"], " ").Replace("Intel(R) Xeon(R) CPU ", "");
@@ -220,7 +213,7 @@ namespace Evacuation
             }
         }
 
-        private void LoadHypDiskInfo()
+        void LoadHypDiskInfo()
         {
             List<SR> volumes = SR.get_all_records(session).Where(srKVP => "ext,lvm".Contains(srKVP.Value.type)).Select(p => p.Value).ToList();
 
@@ -229,19 +222,23 @@ namespace Evacuation
             DiskSize = volumes.Sum(x => x.physical_size).KbToTb();
         }
 
-        private void LoadVlanInfo()
+        void LoadVlanInfo()
         {
             // Load Vlans
             Vlans = (from vlan in VLAN.get_all_records(session) select vlan.Value.tag).ToList();
         }
 
-        private void LoadVMInfo()
+        void LoadVMInfo()
         {
             // Load VM Info
-            var vms = (from vm in (VM.get_all_records(session)
-                               .Where(v => v.Value.is_a_template == false && v.Value.is_a_snapshot == false && v.Value.power_state == vm_power_state.Running && !v.Value.is_control_domain))
-                            select vm.Value).ToList();
-            Dictionary<XenRef<VM_guest_metrics>, VM_guest_metrics> vmMetrics = VM_guest_metrics.get_all_records(session);
+            var vms = VM.get_all_records(session)
+                      .Where(v => v.Value.is_a_template == false 
+                             && v.Value.is_a_snapshot == false 
+                             && v.Value.power_state == vm_power_state.Running 
+                             && !v.Value.is_control_domain)
+                       .Select(v => v.Value)
+                       .ToList();
+            var vmMetrics = VM_guest_metrics.get_all_records(session);
 
             foreach (VM vm in vms)
             {
@@ -262,22 +259,6 @@ namespace Evacuation
             return string.Compare(SortPod, other.SortPod, StringComparison.Ordinal);
 
         }
-
-		public double GetProgress(out int TaskCount)
-		{
-            try
-			{
-				if (session == null) LoadSession();
-				var tasks = XenAPI.Task.get_all_records(session).Where(x => x.Value.name_label == "VM.migrate_send").Select(x => x.Value).ToList();
-				TaskCount = tasks.Count;
-                return tasks.Sum(x => x.progress) / TaskCount;
-			}
-			catch
-			{
-                TaskCount = 0;
-                return 0;
-			}
-		}
 
         public List<double> GetProgress()
         {
@@ -301,7 +282,7 @@ namespace Evacuation
 			PatchCount = Patches.Count;
 		}
 
-		private string HostNameAt(int i)
+		string HostNameAt(int i)
 		{
 			try
 			{
