@@ -36,3 +36,5 @@ Backtrace to provide in any support request:[2;34m
 /Users/thittesdorf/.rbenv/versions/2.2.3/bin/moob:23:in `load'
 /Users/thittesdorf/.rbenv/versions/2.2.3/bin/moob:23:in `<main>'
 [0m
+[36mPerformed jnlp on hyp7-idrac.pod3.dub1.zdsys.com.[0m
+/Users/thittesdorf/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/moob-0.5.0/lib/moob/idrac7.rb:87: warning: instance variable @skiplogout not initialized
